@@ -277,7 +277,7 @@
     <span class="case-badge">Кейс №1 · 2026</span>
   </div>
   <!-- desktop stages -->
-  <div class="header-right" id="desktop-stages">
+  <div class="header-right" id="desktop-stages" style="display:none;">
     <span class="stage-pill done" id="stage-anamnez-d">Анамнез</span>
     <span class="stage-pill" id="stage-exam-d">Осмотр</span>
     <span class="stage-pill" id="stage-labs-d">Анализы</span>
@@ -286,7 +286,7 @@
 </div>
 
 <!-- MOBILE STAGES -->
-<div class="stages-bar">
+<div class="stages-bar" style="display:none;" id="stages-bar-mobile">
   <span class="stage-pill done" id="stage-anamnez-m">✓ Анамнез</span>
   <span class="stage-pill" id="stage-exam-m">Осмотр</span>
   <span class="stage-pill" id="stage-labs-m">Анализы</span>
@@ -606,7 +606,16 @@ function hideTyping() { document.getElementById('typing-indicator')?.remove(); }
 
 async function sendMessage() {
   if (isLoading) return;
-  const inp = document.getElementById('chat-input');
+  // Show correct stage bar based on screen
+function initStages() {
+  const isMobile = window.innerWidth <= 640;
+  document.getElementById('desktop-stages').style.display = isMobile ? 'none' : 'flex';
+  document.getElementById('stages-bar-mobile').style.display = isMobile ? 'flex' : 'none';
+}
+initStages();
+window.addEventListener('resize', initStages);
+
+const inp = document.getElementById('chat-input');
   const text = inp.value.trim(); if (!text) return;
   inp.value = ''; inp.style.height = 'auto';
   addMessage('doctor', text);
@@ -756,6 +765,15 @@ function updateStage(stage) {
     }
   });
 }
+
+// Show correct stage bar based on screen
+function initStages() {
+  const isMobile = window.innerWidth <= 640;
+  document.getElementById('desktop-stages').style.display = isMobile ? 'none' : 'flex';
+  document.getElementById('stages-bar-mobile').style.display = isMobile ? 'flex' : 'none';
+}
+initStages();
+window.addEventListener('resize', initStages);
 
 const inp = document.getElementById('chat-input');
 inp.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
