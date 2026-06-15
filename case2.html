@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AI Patient Simulator — Кейс 2</title>
+<title>Симулятор пациента — Кейс 2</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -165,7 +165,7 @@
 
 <div class="header">
   <div class="header-left">
-    <span class="logo">🩺 AI Patient Simulator</span>
+    <span class="logo">🩺 Симулятор пациента</span>
     <span class="case-badge">Кейс №2 · ГГС/ДКА</span>
   </div>
   <div id="desktop-stages">
@@ -173,7 +173,6 @@
     <span class="stage-pill" id="stage-exam-d">Осмотр</span>
     <span class="stage-pill" id="stage-labs-d">Анализы</span>
     <span class="stage-pill" id="stage-diag-d">Диагноз</span>
-    <span class="speaker-badge daughter" id="speaker-badge-d">💬 Дочь — Агнешка</span>
   </div>
 </div>
 
@@ -182,13 +181,12 @@
   <span class="stage-pill" id="stage-exam-m">Осмотр</span>
   <span class="stage-pill" id="stage-labs-m">Анализы</span>
   <span class="stage-pill" id="stage-diag-m">Диагноз</span>
-  <span class="speaker-badge daughter" id="speaker-badge-m" style="flex-shrink:0;">💬 Дочь</span>
 </div>
 
 <div class="workspace">
   <div class="chat-area">
     <div class="messages" id="messages">
-      <div class="msg system"><div class="bubble">Кейс №2 · Приёмный покой. Пациентка в состоянии спутанности сознания. Рядом дочь — Агнешка Новак. Начните сбор анамнеза.</div></div>
+      <div class="msg system"><div class="bubble">Кейс №2 · Приёмный покой. Пациентка в состоянии спутанности сознания и не может отвечать. Рядом дочь — Агнешка Новак, которая даст все необходимые сведения.</div></div>
       <div class="msg daughter">
         <div class="avatar d-char">АН</div>
         <div>
@@ -223,12 +221,7 @@
     <div class="sidebar-content">
 
       <div class="stab-panel active" id="tab-actions">
-        <div class="action-group">
-          <div class="action-label">⚠️ Переключение пациента</div>
-          <button class="action-btn" id="btn-switch-patient" onclick="switchToPatient()" style="border-color:#9fe1cb;color:var(--green);">
-            <span class="icon">🔄</span> Маргарет пришла в себя — говорить с пациенткой
-          </button>
-        </div>
+
         <div class="action-group">
           <div class="action-label">Физикальный осмотр</div>
           <button class="action-btn" id="btn-vitals" onclick="requestExam('vitals')"><span class="icon">❤️</span> Витальные показатели</button>
@@ -336,7 +329,6 @@
     <div class="panel-header"><span class="panel-title">🩺 Физикальный осмотр</span><button class="panel-close" onclick="closePanel('exam')">✕</button></div>
     <div class="panel-body">
       <div class="action-group">
-        <button class="action-btn" style="border-color:#9fe1cb;color:var(--green);" onclick="switchToPatient();closePanel('exam')"><span class="icon">🔄</span> Маргарет пришла в себя</button>
         <button class="action-btn" id="m-btn-vitals" onclick="requestExam('vitals');closePanel('exam')"><span class="icon">❤️</span> Витальные показатели</button>
         <button class="action-btn" id="m-btn-general" onclick="requestExam('general');closePanel('exam')"><span class="icon">👁</span> Общий осмотр / кожа</button>
         <button class="action-btn" id="m-btn-cardio" onclick="requestExam('cardio');closePanel('exam')"><span class="icon">🫀</span> Сердечно-сосудистая</button>
@@ -416,7 +408,7 @@
 <script>
 let GROQ_KEY = 'gsk_lsGti8bgULChp2muhqNRWGdy' + 'b3FYOuPE6zu0viMGGRvPVcLTNxkF';
 
-let currentSpeaker = 'daughter'; // 'daughter' or 'patient'
+let currentSpeaker = 'daughter';
 let conversationHistory = [];
 let isLoading = false;
 let resultsCount = 0;
@@ -603,26 +595,7 @@ async function callGroqOneShot(prompt, sys) {
   return data.choices?.[0]?.message?.content || '';
 }
 
-function switchToPatient() {
-  if (currentSpeaker === 'patient') return;
-  currentSpeaker = 'patient';
-  conversationHistory = [];
-  document.getElementById('speaker-badge-d').className = 'speaker-badge patient';
-  document.getElementById('speaker-badge-d').textContent = '🟢 Маргарет (пациентка)';
-  document.getElementById('speaker-badge-m').className = 'speaker-badge patient';
-  document.getElementById('speaker-badge-m').textContent = '🟢 Маргарет';
-  const qas = document.getElementById('quick-actions');
-  qas.innerHTML = `
-    <button class="qa-btn" onclick="sendQuick('Как вы себя чувствуете?')">Самочувствие?</button>
-    <button class="qa-btn" onclick="sendQuick('Как давно вы плохо себя чувствуете?')">Как давно?</button>
-    <button class="qa-btn" onclick="sendQuick('Вы принимали свои таблетки от диабета?')">Таблетки?</button>
-    <button class="qa-btn" onclick="sendQuick('У вас есть боли?')">Боли?</button>
-    <button class="qa-btn" onclick="sendQuick('Вы помните что произошло?')">Помните?</button>
-  `;
-  addMessage('system', '🔄 Пациентка пришла в себя. Теперь вы можете говорить с Маргарет напрямую.');
-  const btn = document.getElementById('btn-switch-patient');
-  if (btn) { btn.classList.add('used'); btn.innerHTML = '<span class="icon">✓</span> Говорим с Маргарет'; }
-}
+function switchToPatient() { /* disabled - only daughter speaks */ }
 
 function addMessage(role, text, speakerLabel) {
   const c = document.getElementById('messages');
