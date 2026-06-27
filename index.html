@@ -393,27 +393,29 @@
 
 <!-- SCREEN 3: READY -->
 <div class="screen" id="screen-ready">
-  <div class="reg-card" style="max-width:460px;gap:16px;">
-    <div style="text-align:center;display:flex;flex-direction:column;gap:4px;">
-      <div style="font-size:13px;color:var(--text2);" data-key="welcome_title">Добро пожаловать,</div>
-      <div id="ready-name" style="font-size:22px;font-weight:700;color:var(--text);">—</div>
+  <div class="landing-card">
+    <div class="landing-hero">
+      <div class="landing-logo">✅</div>
+      <div class="landing-title" data-key="welcome_title">Добро пожаловать,</div>
+      <div id="ready-name" style="font-size:22px;font-weight:700;color:#fff;margin-top:4px;line-height:1.3;">—</div>
     </div>
-    <div style="height:1px;background:var(--border);"></div>
-    <div class="timer-info">
-      <div>
-        <div class="timer-info-label" data-key="timer_label">⏱ Время на выполнение</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;" data-key="timer_warn">Предупреждение за 5 минут до конца</div>
+    <div class="landing-body">
+      <div class="timer-info">
+        <div>
+          <div class="timer-info-label" data-key="timer_label">⏱ Время на выполнение</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;" data-key="timer_warn">Предупреждение за 5 минут до конца</div>
+        </div>
+        <div class="timer-info-val">30:00</div>
       </div>
-      <div class="timer-info-val">30:00</div>
+      <div class="instructions">
+        <div class="instr-title" data-key="how_title">Как работать</div>
+        <div class="instr-item"><div class="instr-icon">💬</div><div class="instr-text" data-key="i1">Общайтесь с пациентом в свободной форме — задавайте вопросы</div></div>
+        <div class="instr-item"><div class="instr-icon">🩺</div><div class="instr-text" data-key="i2">Запрашивайте осмотр и анализы явно — они выдаются только по вашему запросу</div></div>
+        <div class="instr-item"><div class="instr-icon">📋</div><div class="instr-text" data-key="i3">Когда будете готовы — нажмите кнопку «Поставить диагноз»</div></div>
+        <div class="instr-item"><div class="instr-icon">⭐</div><div class="instr-text" data-key="i4">Оценка выдаётся автоматически после постановки диагноза</div></div>
+      </div>
+      <button class="landing-btn" style="background:var(--green);" onclick="startCase()" data-key="start_btn">Начать кейс →</button>
     </div>
-    <div class="instructions">
-      <div class="instr-title" data-key="how_title">Как работать</div>
-      <div class="instr-item"><div class="instr-icon">💬</div><div class="instr-text" data-key="i1">Общайтесь с пациентом в свободной форме — задавайте вопросы</div></div>
-      <div class="instr-item"><div class="instr-icon">🩺</div><div class="instr-text" data-key="i2">Запрашивайте осмотр и анализы явно — они выдаются только по вашему запросу</div></div>
-      <div class="instr-item"><div class="instr-icon">📋</div><div class="instr-text" data-key="i3">Когда будете готовы — нажмите кнопку «Поставить диагноз»</div></div>
-      <div class="instr-item"><div class="instr-icon">⭐</div><div class="instr-text" data-key="i4">Оценка выдаётся автоматически после постановки диагноза</div></div>
-    </div>
-    <button class="primary-btn green" onclick="startCase()" data-key="start_btn">Начать кейс →</button>
   </div>
 </div>
 
