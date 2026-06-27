@@ -211,67 +211,37 @@
   .select.error { border-color: var(--red); background-color: var(--red-light); }
 
 
-  /* ── LANGUAGE SCREEN ── */
-  #screen-lang {
-    align-items: center; justify-content: center; padding: 24px;
-    background: var(--accent);
+
+  /* ── LANGUAGE SWITCHER ── */
+  .lang-switcher {
+    position: fixed; top: 16px; right: 16px; z-index: 50;
+    display: flex; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
-  .lang-card {
-    background: var(--surface); border-radius: 24px;
-    padding: 36px 28px; max-width: 380px; width: 100%;
-    display: flex; flex-direction: column; gap: 24px; text-align: center;
-    box-shadow: 0 16px 60px rgba(0,0,0,0.2);
+  .lang-opt {
+    padding: 4px 8px; border-radius: 14px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; background: none;
+    font-family: var(--font); color: var(--text3);
+    transition: all .15s;
   }
-  .lang-logo { font-size: 44px; }
-  .lang-title { font-size: 20px; font-weight: 700; color: var(--text); }
-  .lang-subtitle { font-size: 13px; color: var(--text2); }
-  .lang-buttons { display: flex; flex-direction: column; gap: 10px; }
-  .lang-btn {
-    width: 100%; padding: 16px; border: 2px solid var(--border);
-    border-radius: 14px; background: var(--surface);
-    cursor: pointer; font-family: var(--font);
-    display: flex; align-items: center; gap: 14px;
-    transition: all .15s; text-align: left;
-  }
-  .lang-btn:hover { border-color: var(--accent); background: var(--accent-light); }
-  .lang-btn:active { transform: scale(0.98); }
-  .lang-flag { font-size: 28px; flex-shrink: 0; }
-  .lang-name { font-size: 16px; font-weight: 700; color: var(--text); }
-  .lang-native { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .lang-opt.active { background: var(--accent); color: #fff; }
+  .lang-opt:not(.active):hover { color: var(--accent); }
 
 </style>
 </head>
 <body>
 
-<!-- SCREEN 0: LANGUAGE -->
-<div class="screen active" id="screen-lang">
-  <div class="lang-card">
-    <div class="lang-logo">🏥</div>
-    <div>
-      <div class="lang-title">Симулятор пациента</div>
-      <div class="lang-subtitle" style="margin-top:6px;">Tilni tanlang / Выберите язык</div>
-    </div>
-    <div class="lang-buttons">
-      <button class="lang-btn" onclick="setLang('uz')">
-        <span class="lang-flag">🇺🇿</span>
-        <div>
-          <div class="lang-name">O'zbekcha</div>
-          <div class="lang-native">Davom etish uchun tanlang</div>
-        </div>
-      </button>
-      <button class="lang-btn" onclick="setLang('ru')">
-        <span class="lang-flag">🇷🇺</span>
-        <div>
-          <div class="lang-name">Русский</div>
-          <div class="lang-native">Выберите для продолжения</div>
-        </div>
-      </button>
-    </div>
-  </div>
+<!-- LANGUAGE SWITCHER -->
+<div class="lang-switcher">
+  <button class="lang-opt active" id="lang-ru" onclick="setLang('ru')">RU</button>
+  <button class="lang-opt" id="lang-uz" onclick="setLang('uz')">UZ</button>
 </div>
 
 <!-- SCREEN 1: LANDING -->
-<div class="screen" id="screen-landing">
+<div class="screen active" id="screen-landing">
   <div class="landing-card">
     <div class="landing-hero">
       <div class="landing-logo">🏥</div>
@@ -529,7 +499,11 @@ let currentLang = 'ru';
 function setLang(lang) {
   currentLang = lang;
   applyTranslations(lang);
-  showScreen('landing');
+  // Update switcher buttons
+  document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
+  document.getElementById('lang-uz').classList.toggle('active', lang === 'uz');
+  // Save preference
+  localStorage.setItem('preferred_lang', lang);
 }
 
 function t(key) {
