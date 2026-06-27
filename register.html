@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Симулятор пациента — Вход</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #f7f6f2; --surface: #fff; --surface2: #f2f1ed;
+    --border: #e2e0d8; --border2: #ccc9be;
+    --text: #1a1917; --text2: #6b6960; --text3: #9e9b90;
+    --accent: #1a5276; --accent-light: #eaf1f8;
+    --green: #0f6e56; --green-light: #e1f5ee;
+    --red: #a32d2d; --red-light: #fcebeb;
+    --font: 'Inter', system-ui, sans-serif;
+  }
+  html, body { height: 100%; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; padding: 20px; min-height: 100%; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px 28px;
+    max-width: 420px; width: 100%;
+    display: flex; flex-direction: column; gap: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  }
+
+  .header { text-align: center; display: flex; flex-direction: column; gap: 8px; }
+  .logo { font-size: 36px; }
+  .title { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .subtitle { font-size: 14px; color: var(--text2); }
+
+  .form { display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .label { font-size: 12px; font-weight: 600; color: var(--text2); }
+  .input {
+    border: 1px solid var(--border2); border-radius: 10px;
+    padding: 12px 14px; font-family: var(--font); font-size: 15px;
+    color: var(--text); background: var(--surface2); outline: none;
+    transition: border-color .15s, background .15s;
+    -webkit-appearance: none; width: 100%;
+  }
+  .input:focus { border-color: var(--accent); background: var(--surface); }
+  .input.error { border-color: var(--red); background: var(--red-light); }
+  .input.success { border-color: var(--green); }
+
+  .phone-wrap { position: relative; }
+  .phone-prefix {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 15px; color: var(--text2); font-weight: 500; pointer-events: none;
+  }
+  .phone-input { padding-left: 60px !important; }
+
+  .error-msg { font-size: 12px; color: var(--red); display: none; }
+  .error-msg.show { display: block; }
+
+  .submit-btn {
+    width: 100%; padding: 14px; background: var(--accent); color: #fff;
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
+    cursor: pointer; font-family: var(--font); transition: background .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .submit-btn:hover { background: #15407a; }
+  .submit-btn:disabled { background: var(--text3); cursor: not-allowed; }
+  .submit-btn.loading::after {
+    content: ''; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .info-box {
+    background: var(--accent-light); border: 1px solid #b5d4f4;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 13px; color: var(--accent); line-height: 1.5;
+  }
+
+  .success-screen {
+    display: none; flex-direction: column; gap: 16px; text-align: center;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 48px; }
+  .success-title { font-size: 20px; font-weight: 700; color: var(--green); }
+  .success-name { font-size: 16px; color: var(--text2); }
+  .start-btn {
+    width: 100%; padding: 14px; background: var(--green); color: #fff;
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
+    cursor: pointer; font-family: var(--font); text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- FORM -->
+  <div id="form-section">
+    <div class="header">
+      <div class="logo">🏥</div>
+      <div class="title">Симулятор пациента</div>
+      <div class="subtitle">Центр эндокринологии Ташкент</div>
+    </div>
+
+    <div class="form" id="reg-form">
+      <div class="field">
+        <label class="label">Фамилия</label>
+        <input class="input" id="last-name" type="text" placeholder="Каримов" autocomplete="family-name">
+        <span class="error-msg" id="err-last">Введите фамилию</span>
+      </div>
+
+      <div class="field">
+        <label class="label">Имя</label>
+        <input class="input" id="first-name" type="text" placeholder="Азиз" autocomplete="given-name">
+        <span class="error-msg" id="err-first">Введите имя</span>
+      </div>
+
+      <div class="field">
+        <label class="label">Мобильный телефон</label>
+        <div class="phone-wrap">
+          <span class="phone-prefix">+998</span>
+          <input class="input phone-input" id="phone" type="tel" placeholder="90 123 45 67" maxlength="12" inputmode="numeric">
+        </div>
+        <span class="error-msg" id="err-phone">Введите номер в формате: 90 123 45 67</span>
+      </div>
+
+      <div class="info-box">
+        📋 После регистрации вы сможете начать клинический кейс. Каждый номер телефона регистрируется один раз.
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="register()">
+        Войти →
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Добро пожаловать!</div>
+    <div class="success-name" id="success-name"></div>
+    <a class="start-btn" id="start-link" href="index.html">
+      Начать кейс →
+    </a>
+  </div>
+
+</div>
+
+<script>
+const BACKEND_URL = 'https://medical-simulator-api.onrender.com';
+const ORG_SLUG = 'tashkent-endo';
+
+// Format phone input
+document.getElementById('phone').addEventListener('input', function(e) {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 9) val = val.slice(0, 9);
+  // Format: XX XXX XX XX
+  let formatted = val;
+  if (val.length > 2) formatted = val.slice(0,2) + ' ' + val.slice(2);
+  if (val.length > 5) formatted = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5);
+  if (val.length > 7) formatted = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5,7) + ' ' + val.slice(7);
+  e.target.value = formatted;
+  e.target.classList.remove('error');
+  document.getElementById('err-phone').classList.remove('show');
+});
+
+function getPhone() {
+  const raw = document.getElementById('phone').value.replace(/\D/g, '');
+  return '+998' + raw;
+}
+
+function validatePhone(phone) {
+  return /^\+998(90|91|93|94|95|97|98|99)\d{7}$/.test(phone);
+}
+
+function showError(fieldId, errId, show) {
+  const field = document.getElementById(fieldId);
+  const err = document.getElementById(errId);
+  if (show) { field.classList.add('error'); err.classList.add('show'); }
+  else { field.classList.remove('error'); err.classList.remove('show'); }
+}
+
+async function register() {
+  const lastName = document.getElementById('last-name').value.trim();
+  const firstName = document.getElementById('first-name').value.trim();
+  const phone = getPhone();
+
+  // Validate
+  let hasError = false;
+  if (!lastName) { showError('last-name', 'err-last', true); hasError = true; }
+  else showError('last-name', 'err-last', false);
+
+  if (!firstName) { showError('first-name', 'err-first', true); hasError = true; }
+  else showError('first-name', 'err-first', false);
+
+  if (!validatePhone(phone)) { showError('phone', 'err-phone', true); hasError = true; }
+  else showError('phone', 'err-phone', false);
+
+  if (hasError) return;
+
+  // Submit
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '';
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        last_name: lastName,
+        first_name: firstName,
+        phone: phone,
+        org_slug: ORG_SLUG
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.textContent = 'Войти →';
+      alert(data.detail || 'Ошибка регистрации');
+      return;
+    }
+
+    // Save to sessionStorage
+    sessionStorage.setItem('student_id', data.student_id);
+    sessionStorage.setItem('student_name', data.name);
+
+    // Show success
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-name').textContent = data.name;
+    document.getElementById('success-screen').classList.add('show');
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = 'Войти →';
+    alert('Ошибка соединения с сервером. Проверьте интернет.');
+  }
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') register();
+});
+</script>
+</body>
+</html>
