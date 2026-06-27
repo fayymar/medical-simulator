@@ -250,6 +250,19 @@
     #screen-ready #ready-name { font-size: 20px; }
   }
 
+
+  /* Mobile landing - show title in body since hero is hidden */
+  .mobile-title { display: none; font-size: 20px; font-weight: 700; color: var(--text); text-align: center; }
+  @media (max-width: 640px) {
+    .landing-hero { display: none; }
+    .mobile-title { display: block; }
+    .landing-card { border-radius: 0; box-shadow: none; border: none; min-height: 100vh; }
+    .landing-body { padding: 24px 20px !important; gap: 18px !important; }
+    #screen-landing { padding: 0; }
+    /* Ready screen mobile - hide timer block */
+    #screen-ready .timer-info { display: none; }
+  }
+
 </style>
 </head>
 <body>
@@ -269,6 +282,8 @@
 
     </div>
     <div class="landing-body">
+
+      <div class="mobile-title">🏥 Симулятор пациента</div>
 
       <!-- Resume banner -->
       <div class="resume-banner" id="resume-banner">
