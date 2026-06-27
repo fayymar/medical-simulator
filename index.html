@@ -238,6 +238,19 @@
   .auth-panel { display: none; }
   .auth-panel.active { display: block; }
 
+
+  /* READY SCREEN RESPONSIVE */
+  #screen-ready { align-items: center; justify-content: center; padding: 24px; }
+  @media (min-width: 640px) {
+    #screen-ready .reg-card { max-width: 500px; padding: 36px 40px; }
+    #screen-ready #ready-name { font-size: 26px; }
+  }
+  @media (max-width: 639px) {
+    #screen-ready { padding: 16px; justify-content: flex-start; padding-top: 32px; }
+    #screen-ready .reg-card { max-width: 100%; padding: 20px; gap: 14px; }
+    #screen-ready #ready-name { font-size: 20px; }
+  }
+
 </style>
 </head>
 <body>
@@ -271,9 +284,19 @@
 
 
 
-      <div class="timer-info">
-        <div class="timer-info-label" data-key="timer_label">⏱ Время на выполнение</div>
-        <div class="timer-info-val">30:00</div>
+      <!-- Description -->
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:15px;font-weight:600;color:var(--text);" data-key="desc_title">Что это такое?</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;" data-key="desc_text">Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.</div>
+      </div>
+
+      <!-- How it works -->
+      <div class="instructions">
+        <div class="instr-title" data-key="how_title">Как работать</div>
+        <div class="instr-item"><div class="instr-icon">💬</div><div class="instr-text" data-key="i1">Общайтесь с пациентом в свободной форме — задавайте вопросы</div></div>
+        <div class="instr-item"><div class="instr-icon">🩺</div><div class="instr-text" data-key="i2">Запрашивайте осмотр и анализы явно — они выдаются только по вашему запросу</div></div>
+        <div class="instr-item"><div class="instr-icon">📋</div><div class="instr-text" data-key="i3">Когда будете готовы — нажмите кнопку «Поставить диагноз»</div></div>
+        <div class="instr-item"><div class="instr-icon">⭐</div><div class="instr-text" data-key="i4">Оценка выдаётся автоматически после постановки диагноза</div></div>
       </div>
 
       <button class="landing-btn" id="landing-btn" onclick="goToRegister()">Войти чтобы начать →</button>
@@ -459,6 +482,8 @@ const T = {
     desc_title: 'Что это такое?',
     desc_text: 'Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.',
     timer_warn: 'Предупреждение за 5 минут до конца',
+    desc_title: 'Что это такое?',
+    desc_text: 'Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.',
     login_sub: 'Введите номер телефона для входа',
     regions: [
       'Ташкент (город)', 'Андижанская область', 'Бухарская область',
