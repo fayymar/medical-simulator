@@ -393,33 +393,47 @@ async function register() {
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div>';
 
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ last_name: lastName, first_name: firstName, phone, org_slug: ORG_SLUG })
-    });
-    const data = await res.json();
+  // Retry logic - server may be waking up
+  let lastError = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (attempt > 0) {
+        btn.innerHTML = `<div class="spinner"></div>`;
+        await new Promise(r => setTimeout(r, 2000));
+      }
 
-    if (!res.ok) {
-      btn.disabled = false;
-      btn.innerHTML = 'Продолжить →';
-      alert(data.detail || 'Ошибка регистрации');
+      const res = await fetch(`${BACKEND_URL}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_name: lastName, first_name: firstName, phone, org_slug: ORG_SLUG })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        btn.disabled = false;
+        btn.innerHTML = 'Продолжить →';
+        alert(data.detail || 'Ошибка регистрации');
+        return;
+      }
+
+      // Save session
+      saveSession({ student_id: data.student_id, name: data.name });
+
+      // Show ready screen
+      document.getElementById('ready-name').textContent = data.name;
+      showScreen('ready');
       return;
+
+    } catch(e) {
+      lastError = e;
+      if (attempt < 2) continue;
     }
-
-    // Save session
-    saveSession({ student_id: data.student_id, name: data.name });
-
-    // Show ready screen
-    document.getElementById('ready-name').textContent = data.name;
-    showScreen('ready');
-
-  } catch(e) {
-    btn.disabled = false;
-    btn.innerHTML = 'Продолжить →';
-    alert('Ошибка соединения. Проверьте интернет.');
   }
+
+  // All retries failed
+  btn.disabled = false;
+  btn.innerHTML = 'Попробовать снова →';
+  alert('Сервер не отвечает — возможно просыпается. Подождите 10–15 секунд и попробуйте снова.');
 }
 
 // ── START CASE ──────────────────────────────────────
