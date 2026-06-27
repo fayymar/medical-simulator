@@ -619,6 +619,67 @@ async function callGroqOneShot(prompt, sys) {
   return data.choices?.[0]?.message?.content || '';
 }
 
+
+// ── KEYWORD PARSER ──────────────────────────────────
+const LAB_KEYWORDS = {
+  'глюкоза': ['глюкоз', 'сахар', 'гликеми', 'гипергликем'],
+  'hba1c':   ['hba1c', 'гликир', 'гликозил', 'гемоглобин a'],
+  'моча':    ['моч', 'оам', 'кетон', 'ацетон'],
+  'агк':     ['газы крови', 'кщс', 'кислотно', 'ph крови', ' ph ', 'агк', 'бикарбонат', 'pco2', 'po2'],
+  'электролиты': ['электролит', 'калий', 'натрий', ' k+', ' na+', 'ионограмм', 'хлор'],
+  'почки':   ['мочевин', 'креатинин', 'функци почек', 'почечн', 'скф'],
+  'оак':     ['оак', 'общий анализ крови', 'клинический анализ', 'гемоглобин', 'лейкоцит', 'тромбоцит', 'коагулограмм', 'гемограмм', 'cbc'],
+  'печень':  ['алт', 'аст', 'билирубин', 'функци печен', 'печеночн', 'печёночн', 'трансаминаз', 'ггт'],
+  'магний':  ['магний', ' mg', 'mg2+'],
+  'экг':     ['экг', 'электрокардиограмм', 'кардиограмм'],
+  'рентген': ['рентген', 'рентгенограф', 'флюорограф', 'снимок грудн']
+};
+
+const EXAM_KEYWORDS = {
+  'витальные':  ['давлени', 'пульс', 'температур', 'spo2', 'чсс', 'чдд', 'сатурац', ' ад ', 'витальн', 'измерьте', 'жизненн'],
+  'общий':      ['общий осмотр', 'внешний вид', 'осмотрите', 'кожн покров', 'слизист'],
+  'кардио':     ['тоны сердц', 'аускультац сердц', 'выслушайте сердц', 'шумы сердц'],
+  'дыхание':    ['лёгки', 'легки', 'аускультац лёгк', 'аускультац легк', 'выслушайте лёгк', 'хрипы', 'перкусси лёгк', 'дыхательн'],
+  'живот':      ['живот', 'пальпац', 'перкусси живот', 'пропальпируй', 'болезненност живот', 'абдомин'],
+  'неврология': ['неврол', 'сознани', 'рефлекс', 'шкг', 'глазго', 'очагов'],
+  'конечности': ['конечност', 'стопы', 'стоп', 'отёки', 'отеки', 'пульс на стоп']
+};
+
+function parseKeywords(text) {
+  const lower = ' ' + text.toLowerCase() + ' ';
+  const foundLabs = [];
+  const foundExams = [];
+
+  for (const [key, words] of Object.entries(LAB_KEYWORDS)) {
+    if (!usedLabs.has(key)) {
+      for (const word of words) {
+        if (lower.includes(word)) {
+          foundLabs.push(key);
+          break;
+        }
+      }
+    }
+  }
+
+  for (const [key, words] of Object.entries(EXAM_KEYWORDS)) {
+    if (!usedExams.has(key)) {
+      for (const word of words) {
+        if (lower.includes(word)) {
+          foundExams.push(key);
+          break;
+        }
+      }
+    }
+  }
+
+  return { labs: foundLabs, exams: foundExams };
+}
+
+function isResultRequest(text) {
+  const lower = text.toLowerCase();
+  return /результат|покажите анализ|что показал|данные анализ|итог анализ/.test(lower);
+}
+
 async function sendMessage() {
   if (isLoading || isFinished) return;
   const inp = document.getElementById('chat-input');
@@ -626,25 +687,47 @@ async function sendMessage() {
   inp.value = ''; inp.style.height = 'auto';
   addMessage('student', text);
   stats.questions++;
+
+  // Frontend keyword parsing - immediate card rendering
+  const parsed = parseKeywords(text);
+  parsed.exams.forEach((key, i) => {
+    usedExams.add(key); stats.exams++;
+    setTimeout(() => renderExamResult(key), 300 + i * 200);
+  });
+  parsed.labs.forEach((key, i) => {
+    usedLabs.add(key); stats.labs++;
+    setTimeout(() => renderLabResult(key), 300 + (parsed.exams.length + i) * 200);
+  });
+
+  // Handle "результаты?" request
+  if (isResultRequest(text) && (usedLabs.size > 0 || usedExams.size > 0)) {
+    addMessage('system', 'Все назначенные анализы уже показаны выше в чате.');
+    return;
+  }
+
   isLoading = true;
   document.getElementById('send-btn').disabled = true;
   showTyping();
   try {
     const reply = await callGroq(text);
     hideTyping();
+    // Clean any AI tags (fallback - shouldn't appear but just in case)
     const cleanReply = reply.replace(/\[(EXAM|LAB):[^\]]+\]/g, '').trim();
-    addMessage('patient', cleanReply);
+    // Don't show "Хорошо, доктор" if we already rendered cards from keywords
+    if (cleanReply && cleanReply.length > 3) {
+      addMessage('patient', cleanReply);
+    }
 
+    // AI tags as fallback for edge cases
     const examMatches = [...reply.matchAll(/\[EXAM:([^\]]+)\]/g)];
     examMatches.forEach((m, i) => {
       const key = m[1].trim();
-      if (!usedExams.has(key)) { usedExams.add(key); stats.exams++; setTimeout(() => renderExamResult(key), 400 + i * 250); }
+      if (!usedExams.has(key)) { usedExams.add(key); stats.exams++; setTimeout(() => renderExamResult(key), 600 + i * 250); }
     });
-
     const labMatches = [...reply.matchAll(/\[LAB:([^\]]+)\]/g)];
     labMatches.forEach((m, i) => {
       const key = m[1].trim();
-      if (!usedLabs.has(key)) { usedLabs.add(key); stats.labs++; setTimeout(() => renderLabResult(key), 400 + (examMatches.length + i) * 250); }
+      if (!usedLabs.has(key)) { usedLabs.add(key); stats.labs++; setTimeout(() => renderLabResult(key), 600 + (examMatches.length + i) * 250); }
     });
   } catch(err) {
     hideTyping();
