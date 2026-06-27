@@ -17,316 +17,179 @@
     --font: 'Inter', system-ui, sans-serif;
   }
   html, body { height: 100%; }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100%; display: flex; flex-direction: column; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
 
-  /* SCREENS */
-  .screen { display: none; flex: 1; flex-direction: column; }
-  .screen.active { display: flex; }
+  /* LANG SWITCHER */
+  .lang-switcher { position: fixed; top: 16px; right: 16px; z-index: 50; display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .lang-opt { padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: none; font-family: var(--font); color: var(--text3); transition: all .15s; }
+  .lang-opt.active { background: var(--accent); color: #fff; }
 
-  /* ── SCREEN 1: LANDING ── */
-  #screen-landing {
-    align-items: center; justify-content: center; padding: 24px;
+  /* MAIN CARD */
+  .main-card {
+    background: var(--surface); border-radius: 20px;
+    overflow: hidden; width: 100%; max-width: 900px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+    display: grid; grid-template-columns: 280px 1fr;
+    min-height: 560px;
   }
-  .landing-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; max-width: 480px; width: 100%;
-    overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-  }
-  .landing-hero {
-    background: var(--accent); padding: 32px 28px;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .landing-logo { font-size: 36px; }
-  .landing-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.4px; }
-  .landing-org { font-size: 13px; color: rgba(255,255,255,0.7); }
-  .landing-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
-  .case-card {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .case-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); }
-  .case-title { font-size: 16px; font-weight: 600; color: var(--text); }
-  .case-meta { font-size: 13px; color: var(--text2); }
-  .case-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); }
-  .tag.red { background: var(--red-light); border-color: #fca5a5; color: var(--red); }
-  .tag.blue { background: var(--accent-light); border-color: #b5d4f4; color: var(--accent); }
-  .instructions { display: flex; flex-direction: column; gap: 10px; }
-  .instr-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); }
-  .instr-item { display: flex; gap: 10px; align-items: flex-start; }
-  .instr-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-  .instr-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
-  .timer-info {
-    background: var(--accent-light); border: 1px solid #b5d4f4;
-    border-radius: 10px; padding: 12px 14px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .timer-info-label { font-size: 13px; color: var(--accent); font-weight: 500; }
-  .timer-info-val { font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-  .landing-btn {
-    width: 100%; padding: 14px; background: var(--accent); color: #fff;
-    border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
-    cursor: pointer; font-family: var(--font); transition: background .15s;
-  }
-  .landing-btn:active { background: #15407a; }
 
-  /* ── RESUME BANNER ── */
-  .resume-banner {
-    background: var(--amber-light); border: 1px solid #fac775;
-    border-radius: 12px; padding: 14px 16px;
-    display: flex; flex-direction: column; gap: 10px; display: none;
+  /* LEFT PANEL */
+  .left-panel {
+    background: var(--accent); padding: 40px 32px;
+    display: flex; flex-direction: column; gap: 24px;
+    justify-content: center;
   }
-  .resume-banner.show { display: flex; }
-  .resume-title { font-size: 13px; font-weight: 600; color: var(--amber); }
-  .resume-name { font-size: 14px; font-weight: 700; color: var(--text); }
-  .resume-btns { display: flex; gap: 8px; }
-  .resume-btn { flex: 1; padding: 9px; border: none; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; }
-  .resume-btn.primary { background: var(--accent); color: #fff; }
-  .resume-btn.secondary { background: var(--surface); border: 1px solid var(--border2); color: var(--text2); }
+  .left-logo { font-size: 40px; }
+  .left-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.4px; line-height: 1.2; }
+  .left-desc { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+  .left-timer {
+    background: rgba(255,255,255,0.12); border-radius: 12px;
+    padding: 14px 16px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .left-timer-label { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .left-timer-val { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  .left-features { display: flex; flex-direction: column; gap: 8px; }
+  .left-feature { display: flex; gap: 8px; align-items: flex-start; }
+  .left-feature-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .left-feature-text { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.4; }
 
-  /* ── SCREEN 2: REGISTER ── */
-  #screen-register { align-items: center; justify-content: center; padding: 24px; }
-  .reg-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 28px 24px; max-width: 420px; width: 100%;
-    display: flex; flex-direction: column; gap: 20px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  /* RIGHT PANEL */
+  .right-panel { padding: 40px 36px; display: flex; flex-direction: column; justify-content: center; }
+
+  /* AUTH PANEL */
+  .auth-panel { display: flex; flex-direction: column; gap: 20px; }
+  .auth-tabs { display: flex; border-bottom: 2px solid var(--border); }
+  .auth-tab {
+    flex: 1; padding: 10px; background: none; border: none;
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    color: var(--text3); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all .15s;
   }
-  .reg-header { display: flex; flex-direction: column; gap: 4px; }
-  .reg-back { background: none; border: none; color: var(--text3); font-size: 13px; cursor: pointer; font-family: var(--font); text-align: left; padding: 0; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
-  .reg-title { font-size: 20px; font-weight: 700; color: var(--text); }
-  .reg-sub { font-size: 13px; color: var(--text2); }
-  .form { display: flex; flex-direction: column; gap: 14px; }
+  .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; flex-direction: column; gap: 14px; }
+  .tab-content.active { display: flex; }
+
+  /* FORM */
   .field { display: flex; flex-direction: column; gap: 5px; }
   .label { font-size: 12px; font-weight: 600; color: var(--text2); }
   .input {
     border: 1px solid var(--border2); border-radius: 10px;
-    padding: 12px 14px; font-family: var(--font); font-size: 15px;
+    padding: 11px 14px; font-family: var(--font); font-size: 14px;
     color: var(--text); background: var(--surface2); outline: none;
     transition: border-color .15s; -webkit-appearance: none; width: 100%;
   }
   .input:focus { border-color: var(--accent); background: var(--surface); }
   .input.error { border-color: var(--red); background: var(--red-light); }
-  .error-msg { font-size: 12px; color: var(--red); display: none; }
+  .error-msg { font-size: 11px; color: var(--red); display: none; }
   .error-msg.show { display: block; }
   .phone-wrap { position: relative; }
-  .phone-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--text2); font-weight: 500; pointer-events: none; }
-  .phone-input { padding-left: 60px !important; }
-  .primary-btn {
-    width: 100%; padding: 14px; background: var(--accent); color: #fff;
-    border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
-    cursor: pointer; font-family: var(--font); transition: background .15s;
+  .phone-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text2); font-weight: 500; pointer-events: none; }
+  .phone-input { padding-left: 56px !important; }
+  .select {
+    border: 1px solid var(--border2); border-radius: 10px;
+    padding: 11px 36px 11px 14px; font-family: var(--font); font-size: 14px;
+    color: var(--text); background: var(--surface2); outline: none;
+    -webkit-appearance: none; width: 100%; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239e9b90' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    transition: border-color .15s;
+  }
+  .select:focus { border-color: var(--accent); }
+  .submit-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 10px;
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all .15s; color: #fff;
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .primary-btn:active { background: #15407a; }
-  .primary-btn:disabled { background: var(--text3); cursor: not-allowed; }
-  .primary-btn.green { background: var(--green); }
-  .primary-btn.green:active { background: #0a5240; }
+  .submit-btn.blue { background: var(--accent); }
+  .submit-btn.blue:hover { background: #15407a; }
+  .submit-btn.green { background: var(--green); }
+  .submit-btn.green:hover { background: #0a5240; }
+  .submit-btn:disabled { background: var(--text3); cursor: not-allowed; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
 
-  /* ── SCREEN 3: READY ── */
-  #screen-ready { align-items: center; justify-content: center; padding: 24px; }
-  .ready-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 28px 24px; max-width: 420px; width: 100%;
-    display: flex; flex-direction: column; gap: 20px; text-align: center;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  /* RESUME BANNER */
+  .resume-banner { background: var(--amber-light); border: 1px solid #fac775; border-radius: 12px; padding: 14px 16px; display: none; flex-direction: column; gap: 10px; }
+  .resume-banner.show { display: flex; }
+  .resume-title { font-size: 13px; font-weight: 600; color: var(--amber); }
+  .resume-btns { display: flex; gap: 8px; }
+  .resume-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .resume-btn.primary { background: var(--accent); color: #fff; }
+  .resume-btn.secondary { background: var(--surface); border: 1px solid var(--border2); color: var(--text2); }
+
+  /* WELCOME PANEL */
+  .welcome-panel { display: none; flex-direction: column; gap: 20px; }
+  .welcome-panel.show { display: flex; }
+  .welcome-greeting { font-size: 14px; color: var(--text2); }
+  .welcome-name { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .welcome-divider { height: 1px; background: var(--border); }
+  .welcome-note { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* MOBILE */
+  @media (max-width: 700px) {
+    body { padding: 0; align-items: stretch; justify-content: flex-start; }
+    .main-card { grid-template-columns: 1fr; border-radius: 0; box-shadow: none; min-height: 100vh; }
+    .left-panel { padding: 28px 20px; gap: 16px; }
+    .left-title { font-size: 20px; }
+    .left-features { display: none; }
+    .right-panel { padding: 24px 20px; }
   }
-  .ready-icon { font-size: 44px; }
-  .ready-greeting { font-size: 13px; color: var(--text2); }
-  .ready-name { font-size: 22px; font-weight: 700; color: var(--text); }
-  .ready-divider { height: 1px; background: var(--border); }
-  .ready-case { background: var(--surface2); border-radius: 12px; padding: 16px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
-  .ready-case-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); }
-  .ready-case-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .ready-case-meta { font-size: 13px; color: var(--text2); }
-  .ready-timer { background: var(--accent-light); border: 1px solid #b5d4f4; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-  .ready-timer-label { font-size: 13px; color: var(--accent); font-weight: 500; }
-  .ready-timer-val { font-size: 24px; font-weight: 700; color: var(--accent); }
-  .ready-note { font-size: 12px; color: var(--text3); line-height: 1.5; }
-
-  /* ── DESKTOP LAYOUT (>= 900px) ── */
-  @media (min-width: 900px) {
-    /* Landing: side by side */
-    #screen-landing { padding: 40px; }
-    .landing-card {
-      max-width: 900px;
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      border-radius: 24px;
-      overflow: visible;
-    }
-    .landing-hero {
-      padding: 40px 32px;
-      justify-content: flex-start;
-      border-radius: 24px 0 0 24px;
-    }
-    .landing-logo { font-size: 48px; }
-    .landing-title { font-size: 26px; }
-    .landing-body { padding: 36px 40px; gap: 20px; justify-content: flex-start; overflow-y: auto; max-height: 90vh; }
-    .landing-btn { font-size: 15px; }
-
-    /* Register: centered wider card */
-    #screen-register { padding: 40px; }
-    .reg-card { max-width: 480px; padding: 40px; }
-    .reg-title { font-size: 24px; }
-    .input { font-size: 16px; padding: 14px 16px; }
-    .phone-prefix { font-size: 16px; }
-    .phone-input { padding-left: 64px !important; }
-
-    /* Ready: wider card */
-    #screen-ready { padding: 40px; }
-    .ready-card { max-width: 480px; padding: 40px; }
-    .ready-name { font-size: 26px; }
+  @media (min-width: 701px) {
+    .left-panel { border-radius: 20px 0 0 20px; }
   }
-
-  /* ── MOBILE (< 480px) ── */
-  @media (max-width: 480px) {
-    #screen-landing { padding: 16px; }
-    .landing-hero { padding: 24px 20px; }
-    .landing-body { padding: 20px; gap: 16px; }
-    .landing-title { font-size: 20px; }
-    #screen-register { padding: 16px; }
-    .reg-card { padding: 20px; border-radius: 16px; }
-    #screen-ready { padding: 16px; }
-    .ready-card { padding: 20px; border-radius: 16px; }
-  }
-
-
-  .select {
-    border: 1px solid var(--border2); border-radius: 10px;
-    padding: 12px 14px; font-family: var(--font); font-size: 15px;
-    color: var(--text); background: var(--surface2); outline: none;
-    transition: border-color .15s; -webkit-appearance: none;
-    width: 100%; cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239e9b90' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-  }
-  .select:focus { border-color: var(--accent); background-color: var(--surface); }
-  .select.error { border-color: var(--red); background-color: var(--red-light); }
-
-
-
-  /* ── LANGUAGE SWITCHER ── */
-  .lang-switcher {
-    position: fixed; top: 16px; right: 16px; z-index: 50;
-    display: flex; align-items: center; gap: 4px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 4px 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    pointer-events: auto;
-  }
-  .lang-opt {
-    padding: 4px 8px; border-radius: 14px;
-    font-size: 12px; font-weight: 600;
-    cursor: pointer; border: none; background: none;
-    font-family: var(--font); color: var(--text3);
-    transition: all .15s;
-  }
-  .lang-opt.active { background: var(--accent); color: #fff; }
-  .lang-opt:not(.active):hover { color: var(--accent); }
-
-
-  .auth-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 4px; }
-  .auth-tab { flex: 1; padding: 10px; background: none; border: none; font-family: var(--font); font-size: 15px; font-weight: 600; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
-  .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .auth-panel { display: none; }
-  .auth-panel.active { display: block; }
-
-
-  /* READY SCREEN RESPONSIVE */
-  #screen-ready { align-items: center; justify-content: center; padding: 24px; }
-  @media (min-width: 640px) {
-    #screen-ready .reg-card { max-width: 500px; padding: 36px 40px; }
-    #screen-ready #ready-name { font-size: 26px; }
-  }
-  @media (max-width: 639px) {
-    #screen-ready { padding: 16px; justify-content: flex-start; padding-top: 32px; }
-    #screen-ready .reg-card { max-width: 100%; padding: 20px; gap: 14px; }
-    #screen-ready #ready-name { font-size: 20px; }
-  }
-
-
-  /* Mobile landing - show title in body since hero is hidden */
-  .mobile-title { display: none; font-size: 20px; font-weight: 700; color: var(--text); text-align: center; }
-  @media (max-width: 640px) {
-    .landing-hero { display: none; }
-    .mobile-title { display: block; }
-    .landing-card { border-radius: 0; box-shadow: none; border: none; min-height: 100vh; }
-    .landing-body { padding: 24px 20px !important; gap: 18px !important; }
-    #screen-landing { padding: 0; }
-    /* Ready screen mobile - hide timer block */
-    #screen-ready .timer-info { display: none; }
-  }
-
 </style>
 </head>
 <body>
 
-<!-- LANGUAGE SWITCHER -->
 <div class="lang-switcher">
   <button class="lang-opt active" id="lang-ru" onclick="setLang('ru')">RU</button>
   <button class="lang-opt" id="lang-uz" onclick="setLang('uz')">UZ</button>
 </div>
 
-<!-- SCREEN 1: LANDING -->
-<div class="screen active" id="screen-landing">
-  <div class="landing-card">
-    <div class="landing-hero">
-      <div class="landing-logo">🏥</div>
-      <div class="landing-title">Симулятор пациента</div>
+<div class="main-card">
 
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-logo">🏥</div>
+    <div class="left-title" data-key="title">Симулятор пациента</div>
+    <div class="left-desc" data-key="desc">Интерактивный тренажёр для отработки клинических навыков. Проведите приём виртуального пациента, назначьте обследования и поставьте диагноз.</div>
+    <div class="left-timer">
+      <div class="left-timer-label" data-key="timer_label">⏱ Время на выполнение</div>
+      <div class="left-timer-val">30:00</div>
     </div>
-    <div class="landing-body">
-
-      <!-- Resume banner -->
-      <div class="resume-banner" id="resume-banner">
-        <div class="resume-title" data-key="resume_title">⚠️ Найден незавершённый сеанс</div>
-        <div class="resume-name" id="resume-name"></div>
-        <div style="font-size:12px;color:var(--text2);" data-key="resume_q">Это вы? Продолжить или начать заново?</div>
-        <div class="resume-btns">
-          <button class="resume-btn primary" onclick="resumeSession()" data-key="resume_yes">Продолжить</button>
-          <button class="resume-btn secondary" onclick="clearSession()" data-key="resume_no">Это не я</button>
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:15px;font-weight:600;color:var(--text);" data-key="desc_title">Что это такое?</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6;" data-key="desc_text">Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.</div>
-      </div>
-
-      <!-- Timer -->
-      <div class="timer-info">
-        <div class="timer-info-label" data-key="timer_label">⏱ Время на выполнение</div>
-        <div class="timer-info-val">30:00</div>
-      </div>
-
-      <button class="landing-btn" id="landing-btn" onclick="goToRegister()">Войти чтобы начать →</button>
+    <div class="left-features">
+      <div class="left-feature"><div class="left-feature-icon">💬</div><div class="left-feature-text" data-key="f1">Свободное общение с пациентом</div></div>
+      <div class="left-feature"><div class="left-feature-icon">🩺</div><div class="left-feature-text" data-key="f2">Осмотр и анализы по запросу</div></div>
+      <div class="left-feature"><div class="left-feature-icon">⭐</div><div class="left-feature-text" data-key="f3">Автоматическая оценка после диагноза</div></div>
     </div>
   </div>
-</div>
 
-<!-- SCREEN 2: LOGIN / REGISTER -->
-<div class="screen" id="screen-register">
-  <div class="reg-card">
-    <div class="reg-header">
-      <button class="reg-back" onclick="showScreen('landing')" data-key="reg_back">← Назад</button>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')" data-key="tab_login">Вход</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')" data-key="tab_reg">Регистрация</button>
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- RESUME BANNER -->
+    <div class="resume-banner" id="resume-banner" style="margin-bottom:16px;">
+      <div class="resume-title" data-key="resume_title">⚠️ Найден незавершённый сеанс</div>
+      <div id="resume-name" style="font-size:14px;font-weight:700;color:var(--text);"></div>
+      <div style="font-size:12px;color:var(--text2);" data-key="resume_q">Это вы?</div>
+      <div class="resume-btns">
+        <button class="resume-btn primary" onclick="resumeSession()" data-key="resume_yes">Продолжить</button>
+        <button class="resume-btn secondary" onclick="clearAndReset()" data-key="resume_no">Это не я</button>
+      </div>
     </div>
 
-    <!-- LOGIN -->
-    <div class="auth-panel active" id="panel-login">
-      <div class="form" style="padding-top:8px;">
-        <div class="reg-title" data-key="login_title">Добро пожаловать</div>
-        <div class="reg-sub" data-key="login_sub">Введите номер телефона для входа</div>
+    <!-- AUTH PANEL -->
+    <div class="auth-panel" id="auth-panel">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" data-key="tab_login">Вход</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')" data-key="tab_reg">Регистрация</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="tab-content active" id="tab-login-content">
         <div class="field">
           <label class="label" data-key="lbl_phone">Мобильный телефон</label>
           <div class="phone-wrap">
@@ -335,15 +198,11 @@
           </div>
           <span class="error-msg" id="err-login-phone">Неверный формат. Пример: 90 123 45 67</span>
         </div>
-        <button class="primary-btn" id="login-btn" onclick="login()">Войти →</button>
+        <button class="submit-btn blue" id="login-btn" onclick="login()" data-key="login_btn">Войти →</button>
       </div>
-    </div>
 
-    <!-- REGISTER -->
-    <div class="auth-panel" id="panel-register">
-      <div class="form" style="padding-top:8px;">
-        <div class="reg-title" data-key="reg_title">Регистрация</div>
-        <div class="reg-sub" data-key="reg_sub">Данные сохраняются для учёта результатов</div>
+      <!-- REGISTER -->
+      <div class="tab-content" id="tab-register-content">
         <div class="field">
           <label class="label" data-key="lbl_last">Фамилия</label>
           <input class="input" id="last-name" type="text" placeholder="Каримов" autocomplete="family-name">
@@ -358,199 +217,130 @@
           <label class="label" data-key="lbl_phone">Мобильный телефон</label>
           <div class="phone-wrap">
             <span class="phone-prefix">+998</span>
-            <input class="input phone-input" id="phone" type="tel" placeholder="90 123 45 67" maxlength="12" inputmode="numeric">
+            <input class="input phone-input" id="reg-phone" type="tel" placeholder="90 123 45 67" maxlength="12" inputmode="numeric">
           </div>
-          <span class="error-msg" id="err-phone">Неверный формат. Пример: 90 123 45 67</span>
+          <span class="error-msg" id="err-reg-phone">Неверный формат. Пример: 90 123 45 67</span>
         </div>
         <div class="field">
           <label class="label" data-key="lbl_region">Область</label>
           <select class="select" id="region">
             <option value="">— Выберите область —</option>
-            <option value="Ташкент (город)">Ташкент (город)</option>
-            <option value="Андижанская область">Андижанская область</option>
-            <option value="Бухарская область">Бухарская область</option>
-            <option value="Джизакская область">Джизакская область</option>
-            <option value="Кашкадарьинская область">Кашкадарьинская область</option>
-            <option value="Навоийская область">Навоийская область</option>
-            <option value="Наманганская область">Наманганская область</option>
-            <option value="Самаркандская область">Самаркандская область</option>
-            <option value="Сурхандарьинская область">Сурхандарьинская область</option>
-            <option value="Сырдарьинская область">Сырдарьинская область</option>
-            <option value="Ташкентская область">Ташкентская область</option>
-            <option value="Ферганская область">Ферганская область</option>
-            <option value="Хорезмская область">Хорезмская область</option>
-            <option value="Республика Каракалпакстан">Республика Каракалпакстан</option>
+            <option>Ташкент (город)</option><option>Андижанская область</option>
+            <option>Бухарская область</option><option>Джизакская область</option>
+            <option>Кашкадарьинская область</option><option>Навоийская область</option>
+            <option>Наманганская область</option><option>Самаркандская область</option>
+            <option>Сурхандарьинская область</option><option>Сырдарьинская область</option>
+            <option>Ташкентская область</option><option>Ферганская область</option>
+            <option>Хорезмская область</option><option>Республика Каракалпакстан</option>
           </select>
           <span class="error-msg" id="err-region">Выберите область</span>
         </div>
         <div class="field">
           <label class="label" data-key="lbl_city">Город / район</label>
-          <input class="input" id="city" type="text" placeholder="Например: Ташкент" autocomplete="address-level2">
-          <span class="error-msg" id="err-city">Введите город или район</span>
+          <input class="input" id="city" type="text" placeholder="Например: Ташкент">
+          <span class="error-msg" id="err-city">Введите город</span>
         </div>
         <div class="field">
           <label class="label" data-key="lbl_workplace">Место работы</label>
-          <input class="input" id="workplace" type="text" placeholder="Укажите своё место работы" autocomplete="organization">
+          <input class="input" id="workplace" type="text" placeholder="Укажите место работы">
           <span class="error-msg" id="err-workplace">Введите место работы</span>
         </div>
-        <button class="primary-btn" id="reg-btn" onclick="register()">Зарегистрироваться →</button>
+        <button class="submit-btn blue" id="reg-btn" onclick="register()" data-key="reg_btn">Зарегистрироваться →</button>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- SCREEN 3: READY -->
-<div class="screen" id="screen-ready">
-  <div class="landing-card">
-    <div class="landing-hero">
-      <div class="landing-logo">✅</div>
-      <div class="landing-title" data-key="welcome_title">Добро пожаловать,</div>
-      <div id="ready-name" style="font-size:22px;font-weight:700;color:#fff;margin-top:4px;line-height:1.3;">—</div>
-    </div>
-    <div class="landing-body">
-      <div class="timer-info">
-        <div>
-          <div class="timer-info-label" data-key="timer_label">⏱ Время на выполнение</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;" data-key="timer_warn">Предупреждение за 5 минут до конца</div>
-        </div>
-        <div class="timer-info-val">30:00</div>
+    <!-- WELCOME PANEL (shown after login) -->
+    <div class="welcome-panel" id="welcome-panel">
+      <div>
+        <div class="welcome-greeting" data-key="welcome_greeting">Добро пожаловать,</div>
+        <div class="welcome-name" id="welcome-name">—</div>
       </div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.6;" data-key="ready_note">Нажмите кнопку ниже чтобы начать. Таймер запустится сразу после нажатия.</div>
-      <button class="landing-btn" style="background:var(--green);" onclick="startCase()" data-key="start_btn">Начать кейс →</button>
+      <div class="welcome-divider"></div>
+      <div class="welcome-note" data-key="welcome_note">Нажмите кнопку ниже чтобы начать. Таймер запустится сразу после нажатия.</div>
+      <button class="submit-btn green" onclick="startCase()" data-key="start_btn">Начать кейс →</button>
+      <button style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:var(--font);" onclick="logout()" data-key="logout_btn">Это не я — выйти</button>
     </div>
+
   </div>
 </div>
 
 <script>
+const BACKEND_URL = 'https://medical-simulator-api.onrender.com';
+const ORG_SLUG = 'tashkent-endo';
+const SESSION_KEY = 'med_sim_session';
+const SESSION_TIMEOUT = 45 * 60 * 1000;
 
-
-// ── TRANSLATIONS ─────────────────────────────────────
+// ── TRANSLATIONS ──────────────────────────────────────
 const T = {
   ru: {
-    // Landing
-    org: 'Центр эндокринологии Ташкент',
     title: 'Симулятор пациента',
-    how_title: 'Как работать',
-    i1: 'Общайтесь с пациентом в свободной форме — задавайте вопросы',
-    i2: 'Запрашивайте осмотр и анализы явно — они выдаются только по вашему запросу',
-    i3: 'Когда будете готовы — нажмите кнопку «Поставить диагноз»',
-    i4: 'Оценка выдаётся автоматически после постановки диагноза',
-    timer_label: '⏱ Время на выполнение',
-    login_btn: 'Войти чтобы начать →',
-    login_btn_other: 'Войти как другой пользователь →',
-    // Resume
-    resume_title: '⚠️ Найден незавершённый сеанс',
-    resume_q: 'Это вы? Продолжить или начать заново?',
+    desc: 'Интерактивный тренажёр для отработки клинических навыков. Проведите приём виртуального пациента, назначьте обследования и поставьте диагноз.',
+    timer_label: '\u23F1 Время на выполнение',
+    f1: 'Свободное общение с пациентом',
+    f2: 'Осмотр и анализы по запросу',
+    f3: 'Автоматическая оценка после диагноза',
+    resume_title: '\u26A0\uFE0F Найден незавершённый сеанс',
+    resume_q: 'Это вы?',
     resume_yes: 'Продолжить',
     resume_no: 'Это не я',
-    // Register
-    reg_back: '← Назад',
-    reg_title: 'Введите ваши данные',
-    reg_sub: 'Данные сохраняются для учёта результатов',
+    tab_login: 'Вход',
+    tab_reg: 'Регистрация',
+    lbl_phone: 'Мобильный телефон',
     lbl_last: 'Фамилия',
     lbl_first: 'Имя',
-    lbl_phone: 'Мобильный телефон',
     lbl_region: 'Область',
     lbl_city: 'Город / район',
     lbl_workplace: 'Место работы',
-    ph_last: 'Каримов',
-    ph_first: 'Азиз',
-    ph_phone: '90 123 45 67',
-    ph_city: 'Например: Ташкент',
-    ph_workplace: 'Укажите своё место работы',
-    ph_region: '— Выберите область —',
+    login_btn: 'Войти \u2192',
+    reg_btn: 'Зарегистрироваться \u2192',
+    welcome_greeting: 'Добро пожаловать,',
+    welcome_note: 'Нажмите кнопку ниже чтобы начать. Таймер запустится сразу после нажатия.',
+    start_btn: 'Начать кейс \u2192',
+    logout_btn: 'Это не я — выйти',
+    err_phone: 'Неверный формат. Пример: 90 123 45 67',
     err_last: 'Введите фамилию',
     err_first: 'Введите имя',
-    err_phone: 'Неверный формат. Пример: 90 123 45 67',
     err_region: 'Выберите область',
-    err_city: 'Введите город или район',
+    err_city: 'Введите город',
     err_workplace: 'Введите место работы',
-    continue_btn: 'Продолжить →',
-    // Ready
-    welcome: 'Добро пожаловать,',
-    your_case: 'Ваш кейс',
-    case_title: 'Жасур Омонов, 20 лет',
-    case_meta: 'Приёмный покой · Эндокринология',
-    timer_note: 'После нажатия кнопки таймер запустится. Удачи!',
-    start_btn: 'Начать кейс →',
-    // Errors
     err_conn: 'Ошибка соединения. Проверьте интернет.',
-    err_server: 'Сервер не отвечает — возможно просыпается. Подождите 10–15 секунд и попробуйте снова.',
-    err_reg: 'Ошибка регистрации',
-    retry_btn: 'Попробовать снова →',
-    tab_login: 'Вход',
-    tab_reg: 'Регистрация',
-    login_title: 'Добро пожаловать',
-    welcome_title: 'Добро пожаловать,',
-    desc_title: 'Что это такое?',
-    desc_text: 'Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.',
-    timer_warn: 'Предупреждение за 5 минут до конца',
-    ready_note: 'Нажмите кнопку ниже чтобы начать. Таймер запустится сразу после нажатия.',
-    desc_title: 'Что это такое?',
-    desc_text: 'Интерактивный тренажёр для отработки клинических навыков. Вы проводите приём виртуального пациента: собираете анамнез, назначаете обследования, ставите диагноз и получаете автоматическую оценку.',
-    login_sub: 'Введите номер телефона для входа',
-    regions: [
-      'Ташкент (город)', 'Андижанская область', 'Бухарская область',
-      'Джизакская область', 'Кашкадарьинская область', 'Навоийская область',
-      'Наманганская область', 'Самаркандская область', 'Сурхандарьинская область',
-      'Сырдарьинская область', 'Ташкентская область', 'Ферганская область',
-      'Хорезмская область', 'Республика Каракалпакстан'
-    ]
+    err_not_found: 'Номер не найден. Пройдите регистрацию.',
+    regions: ['Ташкент (город)','Андижанская область','Бухарская область','Джизакская область','Кашкадарьинская область','Навоийская область','Наманганская область','Самаркандская область','Сурхандарьинская область','Сырдарьинская область','Ташкентская область','Ферганская область','Хорезмская область','Республика Каракалпакстан']
   },
   uz: {
-    org: "Toshkent endokrinologiya markazi",
-    title: "Bemor simulyatori",
-    how_title: "Qanday ishlash kerak",
-    i1: "Bemor bilan erkin muloqot qiling — savollar bering",
-    i2: "Ko\'rikni va tahlillarni aniq so\'rang — ular faqat so\'rovingiz bo\'yicha beriladi",
-    i3: "Tayyor bo\'lganda — «Tashxis qo\'yish» tugmasini bosing",
-    i4: "Baho tashxis qo\'yilgandan so\'ng avtomatik ravishda beriladi",
-    timer_label: "⏱ Bajarish vaqti",
-    login_btn: "Boshlash uchun kiring →",
-    login_btn_other: "Boshqa foydalanuvchi sifatida kiring →",
-    resume_title: "⚠️ Tugallanmagan seans topildi",
-    resume_q: "Bu sizsizmi? Davom ettirish yoki qaytadan boshlash?",
-    resume_yes: "Davom etish",
-    resume_no: "Bu men emasman",
-    reg_back: "← Orqaga",
-    reg_title: "Ma\'lumotlaringizni kiriting",
-    reg_sub: "Ma\'lumotlar natijalarni hisobga olish uchun saqlanadi",
-    lbl_last: "Familiya",
-    lbl_first: "Ism",
-    lbl_phone: "Mobil telefon",
-    lbl_region: "Viloyat",
-    lbl_city: "Shahar / tuman",
-    lbl_workplace: "Ish joyi",
-    ph_last: "Karimov",
-    ph_first: "Aziz",
-    ph_phone: "90 123 45 67",
-    ph_city: "Masalan: Toshkent",
-    ph_workplace: "Ish joyingizni ko\'rsating",
-    ph_region: "— Viloyatni tanlang —",
-    err_last: "Familiyangizni kiriting",
-    err_first: "Ismingizni kiriting",
-    err_phone: "Noto\'g\'ri format. Namuna: 90 123 45 67",
-    err_region: "Viloyatni tanlang",
-    err_city: "Shahar yoki tumanni kiriting",
-    err_workplace: "Ish joyini kiriting",
-    continue_btn: "Davom etish →",
-    welcome: "Xush kelibsiz,",
-    your_case: "Sizning keys",
-    case_title: "Jasur Omonov, 20 yosh",
-    case_meta: "Qabul bo\'limi · Endokrinologiya",
-    timer_note: "Tugma bosilgandan so\'ng taymer ishga tushadi. Omad!",
-    start_btn: "Keysni boshlash →",
-    err_conn: "Ulanishda xatolik. Internetni tekshiring.",
-    err_server: "Server javob bermayapti. 10-15 soniya kuting va qayta urinib ko\'ring.",
-    err_reg: "Ro\'yxatdan o\'tishda xatolik",
-    retry_btn: "Qayta urinib ko\'ring →",
-    regions: [
-      "Toshkent (shahar)", "Andijon viloyati", "Buxoro viloyati",
-      "Jizzax viloyati", "Qashqadaryo viloyati", "Navoiy viloyati",
-      "Namangan viloyati", "Samarqand viloyati", "Surxondaryo viloyati",
-      "Sirdaryo viloyati", "Toshkent viloyati", "Farg\'ona viloyati",
-      "Xorazm viloyati", "Qoraqalpog\'iston Respublikasi"
-    ]
+    title: 'Bemor simulyatori',
+    desc: 'Klinik ko\'nikmalarni mashq qilish uchun interaktiv trenajyor. Virtual bemorni qabul qiling, tekshiruvlar buyuring va tashxis qo\'ying.',
+    timer_label: '\u23F1 Bajarish vaqti',
+    f1: 'Bemor bilan erkin muloqot',
+    f2: 'Ko\'rik va tahlillar so\'rov bo\'yicha',
+    f3: 'Tashxisdan so\'ng avtomatik baho',
+    resume_title: '\u26A0\uFE0F Tugallanmagan seans topildi',
+    resume_q: 'Bu sizsizmi?',
+    resume_yes: 'Davom etish',
+    resume_no: 'Bu men emasman',
+    tab_login: 'Kirish',
+    tab_reg: 'Ro\'yxatdan o\'tish',
+    lbl_phone: 'Mobil telefon',
+    lbl_last: 'Familiya',
+    lbl_first: 'Ism',
+    lbl_region: 'Viloyat',
+    lbl_city: 'Shahar / tuman',
+    lbl_workplace: 'Ish joyi',
+    login_btn: 'Kirish \u2192',
+    reg_btn: 'Ro\'yxatdan o\'tish \u2192',
+    welcome_greeting: 'Xush kelibsiz,',
+    welcome_note: 'Boshlash uchun quyidagi tugmani bosing. Taymer darhol ishga tushadi.',
+    start_btn: 'Keysni boshlash \u2192',
+    logout_btn: 'Bu men emasman — chiqish',
+    err_phone: 'Noto\'g\'ri format. Namuna: 90 123 45 67',
+    err_last: 'Familiyangizni kiriting',
+    err_first: 'Ismingizni kiriting',
+    err_region: 'Viloyatni tanlang',
+    err_city: 'Shahar yoki tumanni kiriting',
+    err_workplace: 'Ish joyini kiriting',
+    err_conn: 'Ulanishda xatolik. Internetni tekshiring.',
+    err_not_found: 'Raqam topilmadi. Ro\'yxatdan o\'ting.',
+    regions: ['Toshkent (shahar)','Andijon viloyati','Buxoro viloyati','Jizzax viloyati','Qashqadaryo viloyati','Navoiy viloyati','Namangan viloyati','Samarqand viloyati','Surxondaryo viloyati','Sirdaryo viloyati','Toshkent viloyati','Farg\'ona viloyati','Xorazm viloyati','Qoraqalpog\'iston Respublikasi']
   }
 };
 
@@ -558,306 +348,192 @@ let currentLang = 'ru';
 
 function setLang(lang) {
   currentLang = lang;
-  applyTranslations(lang);
-  // Update switcher buttons
   document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
   document.getElementById('lang-uz').classList.toggle('active', lang === 'uz');
-  // Save preference
   localStorage.setItem('preferred_lang', lang);
-}
-
-function t(key) {
-  return T[currentLang][key] || T['ru'][key] || key;
+  applyTranslations(lang);
 }
 
 function applyTranslations(lang) {
   const l = T[lang];
-
-  // Translate all elements with data-key attribute
   document.querySelectorAll('[data-key]').forEach(el => {
-    const key = el.getAttribute('data-key');
-    if (l[key] !== undefined) el.textContent = l[key];
+    const k = el.getAttribute('data-key');
+    if (l[k] !== undefined) el.textContent = l[k];
   });
-
-  // Landing button (dynamic text)
-  const lbtn = document.getElementById('landing-btn');
-  if (lbtn) lbtn.textContent = getSession() ? l.login_btn_other : l.login_btn;
-
-  // Reg button
-  const regBtn = document.getElementById('reg-btn');
-  if (regBtn && !regBtn.disabled) regBtn.textContent = l.continue_btn;
-
-  // Start button (ready screen)
-  const startBtn = document.querySelector('#screen-ready .primary-btn');
-  if (startBtn) startBtn.textContent = l.start_btn;
-
   // Placeholders
-  const ph = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = l[key]; };
-  ph('last-name', 'ph_last');
-  ph('first-name', 'ph_first');
-  ph('phone', 'ph_phone');
-  ph('city', 'ph_city');
-  ph('workplace', 'ph_workplace');
-
+  const ph = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = l[key] || ''; };
+  ph('login-phone', 'err_phone');
+  ph('reg-phone', 'err_phone');
   // Region dropdown
-  const regionSel = document.getElementById('region');
-  if (regionSel && l.regions) {
-    const current = regionSel.value;
-    regionSel.innerHTML = `<option value="">${l.ph_region}</option>` +
+  const sel = document.getElementById('region');
+  if (sel && l.regions) {
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">— ${lang === 'uz' ? 'Viloyatni tanlang' : 'Выберите область'} —</option>` +
       l.regions.map(r => `<option value="${r}">${r}</option>`).join('');
-    regionSel.value = current;
+    sel.value = cur;
   }
-
   // Error messages
-  const err = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = l[key]; };
-  err('err-last', 'err_last'); err('err-first', 'err_first');
-  err('err-phone', 'err_phone'); err('err-region', 'err_region');
-  err('err-city', 'err_city'); err('err-workplace', 'err_workplace');
+  const em = {'err-login-phone':'err_phone','err-reg-phone':'err_phone','err-last':'err_last','err-first':'err_first','err-region':'err_region','err-city':'err_city','err-workplace':'err_workplace'};
+  Object.entries(em).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.textContent = l[key]; });
 }
 
-// Device detection
-(function() {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    || window.innerWidth < 768;
-  document.body.classList.add(isMobile ? 'is-mobile' : 'is-desktop');
-})();
-
-const BACKEND_URL = 'https://medical-simulator-api.onrender.com';
-const ORG_SLUG = 'tashkent-endo';
-const SESSION_KEY = 'med_sim_session';
-const SESSION_TIMEOUT = 45 * 60 * 1000; // 45 minutes
-
-// ── SESSION MANAGEMENT ──────────────────────────────
+// ── SESSION ───────────────────────────────────────────
 function getSession() {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw);
-    // Check timeout
-    if (Date.now() - s.timestamp > SESSION_TIMEOUT) {
-      clearSession();
-      return null;
-    }
+    if (Date.now() - s.timestamp > SESSION_TIMEOUT) { clearSession(); return null; }
     return s;
   } catch { return null; }
 }
-
 function saveSession(data) {
   localStorage.setItem(SESSION_KEY, JSON.stringify({ ...data, timestamp: Date.now() }));
 }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
 
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-  document.getElementById('resume-banner').classList.remove('show');
-  document.getElementById('landing-btn').style.display = '';
+function showAuth() {
+  document.getElementById('auth-panel').style.display = 'flex';
+  document.getElementById('welcome-panel').classList.remove('show');
 }
-
+function showWelcome(name) {
+  document.getElementById('auth-panel').style.display = 'none';
+  document.getElementById('welcome-name').textContent = name;
+  document.getElementById('welcome-panel').classList.add('show');
+}
+function logout() {
+  clearSession();
+  showAuth();
+}
+function clearAndReset() {
+  clearSession();
+  document.getElementById('resume-banner').classList.remove('show');
+  showAuth();
+}
 function resumeSession() {
   const s = getSession();
   if (s) startCase(s);
 }
-
-// ── SCREEN NAVIGATION ───────────────────────────────
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(`screen-${name}`).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-function goToRegister() {
-  showScreen('register');
-  setTimeout(() => document.getElementById('last-name').focus(), 100);
-}
-
-// ── PHONE FORMAT ────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  const lp = document.getElementById('login-phone');
-  if (lp) lp.addEventListener('input', function(e) {
-    let val = e.target.value.replace(/\D/g, '');
-    if (val.length > 9) val = val.slice(0, 9);
-    let f = val;
-    if (val.length > 2) f = val.slice(0,2) + ' ' + val.slice(2);
-    if (val.length > 5) f = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5);
-    if (val.length > 7) f = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5,7) + ' ' + val.slice(7);
-    e.target.value = f;
-    e.target.classList.remove('error');
-    document.getElementById('err-login-phone').classList.remove('show');
-  });
-});
-document.getElementById('phone').addEventListener('input', function(e) {
-  let val = e.target.value.replace(/\D/g, '');
-  if (val.length > 9) val = val.slice(0, 9);
-  let f = val;
-  if (val.length > 2) f = val.slice(0,2) + ' ' + val.slice(2);
-  if (val.length > 5) f = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5);
-  if (val.length > 7) f = val.slice(0,2) + ' ' + val.slice(2,5) + ' ' + val.slice(5,7) + ' ' + val.slice(7);
-  e.target.value = f;
-  e.target.classList.remove('error');
-  document.getElementById('err-phone').classList.remove('show');
-});
-
-function getPhone() {
-  return '+998' + document.getElementById('phone').value.replace(/\D/g, '');
-}
-
-function validatePhone(p) {
-  return /^\+998(90|91|93|94|95|97|98|99)\d{7}$/.test(p);
-}
-
-function setFieldError(inputId, errId, show) {
-  document.getElementById(inputId).classList.toggle('error', show);
-  document.getElementById(errId).classList.toggle('show', show);
-}
-
-// ── REGISTER ────────────────────────────────────────
-
-function switchAuthTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-  document.getElementById('panel-login').classList.toggle('active', tab === 'login');
-  document.getElementById('panel-register').classList.toggle('active', tab === 'register');
-}
-
-async function login() {
-  const rawPhone = document.getElementById('login-phone').value || '';
-  const phone = '+998' + rawPhone.replace(/\D/g, '');
-  if (!validatePhone(phone)) {
-    document.getElementById('login-phone').classList.add('error');
-    document.getElementById('err-login-phone').classList.add('show');
-    return;
-  }
-  const btn = document.getElementById('login-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div>';
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      if (attempt > 0) await new Promise(r => setTimeout(r, 2000));
-      const res = await fetch(BACKEND_URL + '/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone, org_slug: ORG_SLUG })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        btn.disabled = false;
-        btn.textContent = 'Войти →';
-        alert(data.detail || 'Ошибка входа');
-        return;
-      }
-      saveSession({ student_id: data.student_id, name: data.name });
-      document.getElementById('ready-name').textContent = data.name;
-      showScreen('ready');
-      return;
-    } catch(e) {
-      if (attempt === 2) {
-        btn.disabled = false;
-        btn.textContent = 'Войти →';
-        alert(t('err_conn'));
-      }
-    }
-  }
-}
-
-async function register() {
-  const lastName = document.getElementById('last-name').value.trim();
-  const firstName = document.getElementById('first-name').value.trim();
-  const phone = getPhone();
-
-  const workplace = document.getElementById('workplace').value.trim();
-  const region = document.getElementById('region').value.trim();
-  const city = document.getElementById('city').value.trim();
-
-  let hasError = false;
-  setFieldError('last-name', 'err-last', !lastName); if (!lastName) hasError = true;
-  setFieldError('first-name', 'err-first', !firstName); if (!firstName) hasError = true;
-  setFieldError('phone', 'err-phone', !validatePhone(phone)); if (!validatePhone(phone)) hasError = true;
-  setFieldError('region', 'err-region', !region); if (!region) hasError = true;
-  setFieldError('city', 'err-city', !city); if (!city) hasError = true;
-  setFieldError('workplace', 'err-workplace', !workplace); if (!workplace) hasError = true;
-  if (hasError) return;
-
-  const btn = document.getElementById('reg-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div>';
-
-  // Retry logic - server may be waking up
-  let lastError = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      if (attempt > 0) {
-        btn.innerHTML = `<div class="spinner"></div>`;
-        await new Promise(r => setTimeout(r, 2000));
-      }
-
-      const res = await fetch(`${BACKEND_URL}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_name: lastName, first_name: firstName, phone, region, city, workplace, org_slug: ORG_SLUG })
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        btn.disabled = false;
-        btn.innerHTML = t('continue_btn');
-        alert(data.detail || t('err_reg'));
-        return;
-      }
-
-      // Save session
-      saveSession({ student_id: data.student_id, name: data.name });
-
-      // Show ready screen
-      document.getElementById('ready-name').textContent = data.name;
-      showScreen('ready');
-      return;
-
-    } catch(e) {
-      lastError = e;
-      if (attempt < 2) continue;
-    }
-  }
-
-  // All retries failed
-  btn.disabled = false;
-  btn.innerHTML = t('retry_btn');
-  alert(t('err_server'));
-}
-
-// ── START CASE ──────────────────────────────────────
 function startCase(session) {
   const s = session || getSession();
-  if (!s) { showScreen('landing'); return; }
-  // Update timestamp
+  if (!s) return showAuth();
   saveSession(s);
-  // Go to exam
   window.location.href = `exam.html?student_id=${s.student_id}&name=${encodeURIComponent(s.name)}`;
 }
 
-// ── INIT ─────────────────────────────────────────────
-(function init() {
-  // Restore language preference
-  const savedLang = localStorage.getItem('preferred_lang') || 'ru';
-  currentLang = savedLang;
-  applyTranslations(savedLang);
-  document.getElementById('lang-ru').classList.toggle('active', savedLang === 'ru');
-  document.getElementById('lang-uz').classList.toggle('active', savedLang === 'uz');
+// ── PHONE FORMAT ──────────────────────────────────────
+function formatPhone(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length > 9) v = v.slice(0, 9);
+  let f = v;
+  if (v.length > 2) f = v.slice(0,2) + ' ' + v.slice(2);
+  if (v.length > 5) f = v.slice(0,2) + ' ' + v.slice(2,5) + ' ' + v.slice(5);
+  if (v.length > 7) f = v.slice(0,2) + ' ' + v.slice(2,5) + ' ' + v.slice(5,7) + ' ' + v.slice(7);
+  e.target.value = f;
+  e.target.classList.remove('error');
+}
+function getPhone(id) {
+  return '+998' + (document.getElementById(id)?.value || '').replace(/\D/g, '');
+}
+function validPhone(p) { return /^\+998(90|91|93|94|95|97|98|99)\d{7}$/.test(p); }
 
-  // Check for existing session
+// ── TABS ──────────────────────────────────────────────
+function switchTab(tab) {
+  ['login','register'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`tab-${t}-content`).classList.toggle('active', t === tab);
+  });
+}
+
+// ── FIELD VALIDATION ─────────────────────────────────
+function setErr(inputId, errId, show) {
+  document.getElementById(inputId)?.classList.toggle('error', show);
+  document.getElementById(errId)?.classList.toggle('show', show);
+}
+
+// ── LOGIN ─────────────────────────────────────────────
+async function login() {
+  const phone = getPhone('login-phone');
+  if (!validPhone(phone)) { setErr('login-phone','err-login-phone',true); return; }
+  setErr('login-phone','err-login-phone',false);
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  for (let i = 0; i < 3; i++) {
+    try {
+      if (i > 0) await new Promise(r => setTimeout(r, 2000));
+      const res = await fetch(BACKEND_URL + '/api/login', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ phone, org_slug: ORG_SLUG })
+      });
+      const data = await res.json();
+      if (!res.ok) { btn.disabled = false; btn.textContent = T[currentLang].login_btn; alert(data.detail || T[currentLang].err_not_found); return; }
+      saveSession({ student_id: data.student_id, name: data.name });
+      showWelcome(data.name);
+      return;
+    } catch(e) {
+      if (i === 2) { btn.disabled = false; btn.textContent = T[currentLang].login_btn; alert(T[currentLang].err_conn); }
+    }
+  }
+}
+
+// ── REGISTER ──────────────────────────────────────────
+async function register() {
+  const lastName = document.getElementById('last-name')?.value.trim();
+  const firstName = document.getElementById('first-name')?.value.trim();
+  const phone = getPhone('reg-phone');
+  const region = document.getElementById('region')?.value.trim();
+  const city = document.getElementById('city')?.value.trim();
+  const workplace = document.getElementById('workplace')?.value.trim();
+  let err = false;
+  setErr('last-name','err-last',!lastName); if (!lastName) err = true;
+  setErr('first-name','err-first',!firstName); if (!firstName) err = true;
+  setErr('reg-phone','err-reg-phone',!validPhone(phone)); if (!validPhone(phone)) err = true;
+  setErr('region','err-region',!region); if (!region) err = true;
+  setErr('city','err-city',!city); if (!city) err = true;
+  setErr('workplace','err-workplace',!workplace); if (!workplace) err = true;
+  if (err) return;
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  for (let i = 0; i < 3; i++) {
+    try {
+      if (i > 0) await new Promise(r => setTimeout(r, 2000));
+      const res = await fetch(BACKEND_URL + '/api/register', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ last_name: lastName, first_name: firstName, phone, region, city, workplace, org_slug: ORG_SLUG })
+      });
+      const data = await res.json();
+      if (!res.ok) { btn.disabled = false; btn.textContent = T[currentLang].reg_btn; alert(data.detail || 'Ошибка регистрации'); return; }
+      saveSession({ student_id: data.student_id, name: data.name });
+      showWelcome(data.name);
+      return;
+    } catch(e) {
+      if (i === 2) { btn.disabled = false; btn.textContent = T[currentLang].reg_btn; alert(T[currentLang].err_conn); }
+    }
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────
+(function init() {
+  const lang = localStorage.getItem('preferred_lang') || 'ru';
+  currentLang = lang;
+  document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
+  document.getElementById('lang-uz').classList.toggle('active', lang === 'uz');
+  applyTranslations(lang);
   const s = getSession();
   if (s) {
     document.getElementById('resume-name').textContent = s.name;
     document.getElementById('resume-banner').classList.add('show');
-    const lbtn = document.getElementById('landing-btn');
-    if (lbtn) lbtn.textContent = T[currentLang].login_btn_other;
   }
+  // Phone listeners
+  document.getElementById('login-phone')?.addEventListener('input', formatPhone);
+  document.getElementById('reg-phone')?.addEventListener('input', formatPhone);
+  // Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const loginActive = document.getElementById('tab-login-content').classList.contains('active');
+    if (loginActive) login(); else register();
+  });
 })();
-
-// Enter key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('screen-register').classList.contains('active')) {
-    register();
-  }
-});
 </script>
 </body>
 </html>
