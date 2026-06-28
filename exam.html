@@ -205,6 +205,28 @@
   .order-submit-btn { width:100%; padding:10px; background:var(--green); color:#fff; border:none; border-radius:8px; font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; margin-top:10px; }
   .order-submit-btn:hover { background:#0a5240; }
 
+
+  /* INLINE ORDER WIDGET */
+  .inline-order { background: var(--accent-light); border: 1px solid #b5d4f4; border-radius: 12px; padding: 14px 16px; width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 12px; }
+  .inline-order-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .inline-order-groups { display: flex; flex-direction: column; gap: 6px; }
+  .inline-order-group { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #b5d4f4; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text); background: var(--surface); transition: all .12s; }
+  .inline-order-group:hover { border-color: var(--accent); background: var(--accent-light); }
+  .inline-order-group input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
+  .inline-order-items { display: flex; flex-direction: column; gap: 4px; }
+  .inline-order-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text); }
+  .inline-order-item:hover { background: rgba(26,82,118,0.08); }
+  .inline-order-item.used { color: var(--text3); pointer-events: none; text-decoration: line-through; }
+  .inline-order-item input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; }
+  .inline-order-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); padding: 4px 10px 2px; }
+  .inline-order-btns { display: flex; gap: 8px; }
+  .inline-order-btn { flex: 1; padding: 9px; border: none; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+  .inline-order-btn.primary { background: var(--accent); color: #fff; }
+  .inline-order-btn.primary:hover { opacity: 0.9; }
+  .inline-order-btn.secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .inline-order-btn.green { background: var(--green); color: #fff; }
+  .inline-order-btn.green:hover { opacity: 0.9; }
+
 </style>
 </head>
 <body>
@@ -761,6 +783,11 @@ async function sendMessage() {
       addMessage('patient', cleanReply);
     }
 
+    // Show inline order widget if student asked about tests
+    if (shouldShowInlineOrder(text) && (usedLabs.size + usedExams.size) < 3) {
+      setTimeout(() => showInlineOrder(), 600);
+    }
+
     // AI tags as fallback for edge cases
     const examMatches = [...reply.matchAll(/\[EXAM:([^\]]+)\]/g)];
     examMatches.forEach((m, i) => {
@@ -842,6 +869,121 @@ function hideTyping() { document.getElementById('typing')?.remove(); }
 
 
 // ── SIDEBAR (DESKTOP) ────────────────────────────────
+
+
+// ── INLINE ORDER WIDGET ──────────────────────────────
+let inlineOrderId = 0;
+
+// Keywords that trigger inline order suggestion
+const ORDER_TRIGGER_WORDS = [
+  'анализ', 'исследован', 'обследован', 'кровь', 'моча',
+  'экг', 'рентген', 'осмотр', 'давлени', 'пульс',
+  'сдавали', 'сдать', 'назначи', 'лаборатор'
+];
+
+function shouldShowInlineOrder(text) {
+  const lower = text.toLowerCase();
+  // Only if it's a question or inquiry, not an order
+  const isQuestion = lower.includes('?') || 
+    ['сдавали','были','делали','проводили','когда','как давно'].some(w => lower.includes(w));
+  const hasKeyword = ORDER_TRIGGER_WORDS.some(w => lower.includes(w));
+  return isQuestion && hasKeyword;
+}
+
+function showInlineOrder() {
+  const id = ++inlineOrderId;
+  const c = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg result';
+  d.id = `inline-order-${id}`;
+  d.innerHTML = `
+    <div class="inline-order">
+      <div class="inline-order-title">💡 Хотите назначить обследования?</div>
+      <div class="inline-order-groups" id="iog-${id}">
+        <label class="inline-order-group">
+          <input type="checkbox" value="lab"> 🧪 Лабораторные анализы
+        </label>
+        <label class="inline-order-group">
+          <input type="checkbox" value="exam"> 🩺 Физикальный осмотр
+        </label>
+        <label class="inline-order-group">
+          <input type="checkbox" value="instrument"> 📈 Инструментальные
+        </label>
+      </div>
+      <div class="inline-order-items" id="ioi-${id}" style="display:none;"></div>
+      <div class="inline-order-btns">
+        <button class="inline-order-btn primary" id="iobtn-${id}" onclick="inlineOrderNext(${id})">Далее →</button>
+        <button class="inline-order-btn secondary" onclick="document.getElementById('inline-order-${id}').remove()">Пропустить</button>
+      </div>
+    </div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function inlineOrderNext(id) {
+  const groups = document.querySelectorAll(`#iog-${id} input:checked`);
+  const selected = [...groups].map(cb => cb.value);
+  
+  if (selected.length === 0) {
+    // Show step 2 items
+    alert('Выберите хотя бы одну категорию');
+    return;
+  }
+
+  // Build items list
+  let html = '';
+  selected.forEach(group => {
+    const cat = ORDER_CATALOG[group];
+    if (!cat) return;
+    html += `<div class="inline-order-section-title">${cat.title}</div>`;
+    cat.items.forEach(item => {
+      const isUsed = usedLabs.has(item.key) || usedExams.has(item.key);
+      html += `<label class="inline-order-item ${isUsed ? 'used' : ''}">
+        <input type="checkbox" class="ioi-cb-${id}" value="${item.key}" data-type="${group}" ${isUsed ? 'disabled checked' : ''}>
+        ${item.label}${isUsed ? ' ✓' : ''}
+      </label>`;
+    });
+  });
+
+  document.getElementById(`iog-${id}`).style.display = 'none';
+  document.getElementById(`ioi-${id}`).innerHTML = html;
+  document.getElementById(`ioi-${id}`).style.display = 'flex';
+  document.getElementById(`ioi-${id}`).style.flexDirection = 'column';
+  document.getElementById(`iobtn-${id}`).textContent = 'Назначить →';
+  document.getElementById(`iobtn-${id}`).className = 'inline-order-btn green';
+  document.getElementById(`iobtn-${id}`).onclick = () => inlineOrderSubmit(id);
+
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+function inlineOrderSubmit(id) {
+  const selected = [...document.querySelectorAll(`.ioi-cb-${id}:checked:not(:disabled)`)];
+  if (selected.length === 0) { alert('Выберите хотя бы один пункт'); return; }
+
+  const examKeys = [], labKeys = [];
+  selected.forEach(cb => {
+    const key = cb.value;
+    const type = cb.getAttribute('data-type');
+    if (type === 'exam') {
+      if (!usedExams.has(key)) { usedExams.add(key); stats.exams++; examKeys.push(key); }
+    } else {
+      if (!usedLabs.has(key)) { usedLabs.add(key); stats.labs++; labKeys.push(key); }
+    }
+  });
+
+  // Remove widget
+  document.getElementById(`inline-order-${id}`)?.remove();
+
+  // Render cards
+  const allKeys = [...examKeys, ...labKeys];
+  examKeys.forEach((key, i) => setTimeout(() => renderExamResult(key), i * 250));
+  labKeys.forEach((key, i) => setTimeout(() => renderLabResult(key), (examKeys.length + i) * 250));
+
+  // System message
+  const labels = selected.map(cb => cb.parentElement.textContent.trim().replace('✓','').trim());
+  addMessage('system', '✅ Назначено: ' + labels.join(', '));
+}
+
 
 // ── ORDER PANEL ──────────────────────────────────────
 const ORDER_CATALOG = {
