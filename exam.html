@@ -628,8 +628,8 @@ const LAB_KEYWORDS = {
   'агк':     ['газы крови', 'кщс', 'кислотно', 'ph крови', ' ph ', 'агк', 'бикарбонат', 'pco2', 'po2'],
   'электролиты': ['электролит', 'калий', 'натрий', ' k+', ' na+', 'ионограмм', 'хлор'],
   'почки':   ['мочевин', 'креатинин', 'функци почек', 'почечн', 'скф'],
-  'оак':     ['оак', 'общий анализ крови', 'клинический анализ', 'гемоглобин', 'лейкоцит', 'тромбоцит', 'коагулограмм', 'гемограмм', 'cbc'],
-  'печень':  ['алт', 'аст', 'билирубин', 'функци печен', 'печеночн', 'печёночн', 'трансаминаз', 'ггт'],
+  'оак':     ['оак', 'общий анализ крови', 'клинический анализ', 'анализ крови', 'гемоглобин', 'лейкоцит', 'тромбоцит', 'коагулограмм', 'гемограмм', 'cbc'],
+  'печень':  ['алт', 'аст', 'билирубин', 'биохим', 'функци печен', 'печеночн', 'печёночн', 'трансаминаз', 'ггт'],
   'магний':  ['магний', ' mg', 'mg2+'],
   'экг':     ['экг', 'электрокардиограмм', 'кардиограмм'],
   'рентген': ['рентген', 'рентгенограф', 'флюорограф', 'снимок грудн']
@@ -763,12 +763,24 @@ function renderLabResult(key) {
 }
 
 function renderCard(title, rows) {
+  const rowsHtml = rows.map(r => `<div class="result-row"><span class="result-key">${r.k}</span><div style="text-align:right"><div class="result-val ${r.s||''}">${r.v}</div>${r.r ? `<div class="result-ref">${r.r}</div>` : ''}</div></div>`).join('');
+  const cardHtml = `<div class="result-card"><div class="result-card-title">${title}</div>${rowsHtml}</div>`;
+  // Add to chat
   const c = document.getElementById('messages');
   const d = document.createElement('div');
   d.className = 'msg result';
-  const rowsHtml = rows.map(r => `<div class="result-row"><span class="result-key">${r.k}</span><div style="text-align:right"><div class="result-val ${r.s||''}">${r.v}</div>${r.r ? `<div class="result-ref">${r.r}</div>` : ''}</div></div>`).join('');
-  d.innerHTML = `<div class="result-card"><div class="result-card-title">${title}</div>${rowsHtml}</div>`;
+  d.innerHTML = cardHtml;
   c.appendChild(d); c.scrollTop = c.scrollHeight;
+  // Add to desktop sidebar
+  const sidebar = document.getElementById('sidebar-results');
+  if (sidebar) {
+    const empty = sidebar.querySelector('div[style*="text-align:center"]');
+    if (empty) empty.remove();
+    const s = document.createElement('div');
+    s.innerHTML = cardHtml;
+    sidebar.appendChild(s.firstChild);
+    switchSidebarTab('results');
+  }
 }
 
 function addMessage(role, text) {
@@ -812,27 +824,7 @@ function submitFromSidebar() {
   submitDiagnosis();
 }
 
-// Mirror result cards to desktop sidebar
-const _origRenderCard = renderCard;
-function renderCard(title, rows) {
-  _origRenderCard(title, rows);
-  // Also add to desktop sidebar
-  const sidebar = document.getElementById('sidebar-results');
-  if (sidebar) {
-    // Remove empty state message
-    const empty = sidebar.querySelector('div[style*="text-align:center"]');
-    if (empty) empty.remove();
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    const rowsHtml = rows.map(r =>
-      `<div class="result-row"><span class="result-key">${r.k}</span><div style="text-align:right"><div class="result-val ${r.s||''}">${r.v}</div>${r.r ? `<div class="result-ref">${r.r}</div>` : ''}</div></div>`
-    ).join('');
-    card.innerHTML = `<div class="result-card-title">${title}</div>${rowsHtml}`;
-    sidebar.appendChild(card);
-    // Switch to results tab
-    switchSidebarTab('results');
-  }
-}
+// Sidebar rendering handled inside renderCard directly
 
 // ── SESSION ─────────────────────────────────────────
 const SESSION_KEY = 'med_sim_session';
