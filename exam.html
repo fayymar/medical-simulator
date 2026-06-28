@@ -271,23 +271,15 @@
 <!-- DESKTOP SIDEBAR -->
 <div class="sidebar-column" id="desktop-sidebar">
   <div class="sidebar-tabs">
-    <button class="sidebar-tab active" id="stab-order" onclick="switchSidebarTab('order')">🩺 Назначить</button>
-    <button class="sidebar-tab" id="stab-results" onclick="switchSidebarTab('results')">📋 Результаты</button>
+    <button class="sidebar-tab active" id="stab-results" onclick="switchSidebarTab('results')">📋 Результаты</button>
     <button class="sidebar-tab" id="stab-diagnosis" onclick="switchSidebarTab('diagnosis')">📝 Диагноз</button>
   </div>
   <div class="sidebar-content">
 
-    <!-- ORDER PANEL: shown via chat widget only -->
-    <div class="sidebar-panel active" id="sidebar-order">
-      <div style="text-align:center;padding:32px 16px;display:flex;flex-direction:column;gap:12px;align-items:center;">
-        <div style="font-size:28px;">🩺</div>
-        <div style="font-size:13px;font-weight:600;color:var(--text);">Назначение обследований</div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.6;">Задайте вопрос пациенту об анализах — в чате появится форма для назначения</div>
-      </div>
-    </div>
+
 
     <!-- RESULTS PANEL -->
-    <div class="sidebar-panel" id="sidebar-results">
+    <div class="sidebar-panel active" id="sidebar-results">
       <div style="font-size:13px;color:var(--text3);text-align:center;padding:20px 0;" id="sidebar-results-empty">
         Результаты появятся здесь
       </div>
@@ -1071,7 +1063,7 @@ function submitOrder() {
 
 
 function switchSidebarTab(tab) {
-  ['order','results','diagnosis'].forEach(t => {
+  ['results','diagnosis'].forEach(t => {
     document.getElementById(`stab-${t}`)?.classList.toggle('active', t === tab);
   });
   document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
