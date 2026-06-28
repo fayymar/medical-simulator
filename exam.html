@@ -261,6 +261,17 @@
   .order-trigger-btn { padding: 0 14px; height: 100%; background: var(--accent-light); border: 1px solid #b5d4f4; border-radius: 10px; font-family: var(--font); font-size: 13px; font-weight: 600; color: var(--accent); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
   .order-trigger-btn:hover { background: var(--accent); color: #fff; }
 
+
+  .inline-search-input { width:100%; border:1px solid var(--border2); border-radius:8px; padding:9px 12px; font-family:var(--font); font-size:13px; color:var(--text); background:var(--surface); outline:none; transition:border-color .15s; }
+  .inline-search-input:focus { border-color:var(--accent); }
+  .inline-search-results { display:flex; flex-direction:column; gap:2px; max-height:200px; overflow-y:auto; }
+  .inline-search-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .inline-search-item:hover { background:var(--accent-light); }
+  .inline-search-item.selected { background:var(--accent-light); }
+  .inline-search-item.used { color:var(--text3); pointer-events:none; }
+  .inline-search-item input[type=checkbox] { accent-color:var(--accent); width:13px; height:13px; flex-shrink:0; }
+  .inline-search-cat { font-size:10px; color:var(--text3); margin-left:auto; }
+
 </style>
 </head>
 <body>
@@ -291,7 +302,6 @@
 <div class="input-area">
   <div class="input-row">
     <textarea class="chat-input" id="chat-input" placeholder="Напишите вопрос или запрос..." rows="1"></textarea>
-    <button class="order-trigger-btn" onclick="openSearchOrder()" title="Назначить обследование">🔍</button>
     <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
   </div>
   <button class="diag-btn" onclick="openDiagPanel()">📋 Поставить диагноз</button>
@@ -794,6 +804,11 @@ async function sendMessage() {
       addMessage('patient', cleanReply);
     }
 
+    // Show inline search after reply if student asked about tests
+    if (shouldShowInlineOrder(text) && (usedLabs.size + usedExams.size) < 3) {
+      setTimeout(() => showInlineOrder(), 500);
+    }
+
     // AI tags as fallback for edge cases
     const examMatches = [...reply.matchAll(/\[EXAM:([^\]]+)\]/g)];
     examMatches.forEach((m, i) => {
@@ -1036,6 +1051,100 @@ async function submitSearchOrder() {
   switchSidebarTab('results');
 }
 
+
+let inlineSearchDebounce = {};
+let inlineSearchSelected = {}; // id -> Map
+
+function inlineSearch(id, val) {
+  if (!inlineSearchSelected[id]) inlineSearchSelected[id] = new Map();
+  clearTimeout(inlineSearchDebounce[id]);
+  const container = document.getElementById(`isr-${id}`);
+  if (val.trim().length < 2) { container.innerHTML = ''; return; }
+  container.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:6px 10px;">Поиск...</div>';
+  inlineSearchDebounce[id] = setTimeout(async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/lab-search?q=${encodeURIComponent(val.trim())}&limit=8`);
+      const items = await res.json();
+      if (!items.length) { container.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:6px 10px;">Ничего не найдено</div>'; return; }
+      const catIcons = {'Лаборатория':'🧪','Инструментальные':'📈','Осмотр':'🩺'};
+      container.innerHTML = items.map(item => {
+        const isUsed = usedLabs.has(item.name) || usedExams.has(item.name);
+        const isSel = inlineSearchSelected[id]?.has(item.id);
+        return `<label class="inline-search-item ${isUsed?'used':''} ${isSel?'selected':''}" onclick="toggleInlineSearch('${id}','${item.id}','${item.name.replace(/'/g,"\'")}','${item.category}',this)">
+          <input type="checkbox" ${isSel?'checked':''} ${isUsed?'disabled':''} onclick="event.stopPropagation();toggleInlineSearch('${id}','${item.id}','${item.name.replace(/'/g,"\'")}','${item.category}',this.closest('.inline-search-item'))">
+          <span>${item.name}</span>
+          <span class="inline-search-cat">${catIcons[item.category]||''}</span>
+          ${isUsed?'<span style="font-size:10px;color:var(--green);font-weight:600;">✓</span>':''}
+        </label>`;
+      }).join('');
+    } catch(e) { container.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:6px 10px;">Ошибка поиска</div>'; }
+  }, 300);
+}
+
+function toggleInlineSearch(id, itemId, name, category, el) {
+  if (!inlineSearchSelected[id]) inlineSearchSelected[id] = new Map();
+  const sel = inlineSearchSelected[id];
+  if (sel.has(itemId)) { sel.delete(itemId); el.classList.remove('selected'); el.querySelector('input').checked = false; }
+  else { sel.set(itemId, {name, category}); el.classList.add('selected'); el.querySelector('input').checked = true; }
+  const btn = document.getElementById(`iobtn-${id}`);
+  btn.disabled = sel.size === 0;
+  btn.textContent = sel.size > 0 ? `Назначить (${sel.size}) →` : 'Назначить →';
+}
+
+function inlineSearchSubmit(id) {
+  const sel = inlineSearchSelected[id];
+  if (!sel || sel.size === 0) return;
+  const items = [...sel.values()];
+  document.getElementById(`inline-order-${id}`)?.remove();
+  delete inlineSearchSelected[id];
+
+  const labKeyMap = {
+    'Глюкоза крови':'глюкоза','HbA1c':'hba1c','Общий анализ крови':'оак',
+    'Калий':'электролиты','Натрий':'электролиты','Магний':'магний','Хлор':'электролиты',
+    'Электролиты':'электролиты','Газы артериальной крови':'агк','Анионная разница':'агк','Бикарбонат':'агк',
+    'Мочевина':'почки','Креатинин':'почки','СКФ':'почки','Микроальбуминурия':'почки',
+    'АЛТ':'печень','АСТ':'печень','ГГТ':'печень','Билирубин общий':'печень','Щелочная фосфатаза':'печень',
+    'Общий анализ мочи':'моча','Глюкоза мочи':'моча','Кетоны мочи':'моча','Посев мочи':'моча',
+    'ЭКГ':'экг','Рентген грудной клетки':'рентген',
+  };
+  const examKeyMap = {
+    'Витальные показатели':'витальные','Общий осмотр':'общий',
+    'Сердечно-сосудистая система':'кардио','Дыхательная система':'дыхание',
+    'Абдоминальный осмотр':'живот','Неврологический осмотр':'неврология',
+    'Осмотр конечностей':'конечности',
+  };
+
+  const labKeys=[], examKeys=[], noResult=[];
+  items.forEach(item => {
+    if (item.category === 'Осмотр') {
+      const key = examKeyMap[item.name];
+      if (key && !usedExams.has(key)) { usedExams.add(key); stats.exams++; examKeys.push(key); }
+      else if (!key) noResult.push(item.name);
+    } else {
+      const key = labKeyMap[item.name];
+      if (key && !usedLabs.has(key)) { usedLabs.add(key); stats.labs++; labKeys.push(key); }
+      else if (!key) noResult.push(item.name);
+    }
+  });
+
+  examKeys.forEach((key,i) => setTimeout(() => renderExamResult(key), i*250));
+  labKeys.forEach((key,i) => setTimeout(() => renderLabResult(key), (examKeys.length+i)*250));
+  addMessage('system', '✅ Назначено: ' + items.map(i=>i.name).join(', '));
+
+  if (noResult.length > 0) {
+    setTimeout(() => {
+      noResult.forEach(name => {
+        const d = document.createElement('div');
+        d.className = 'msg result';
+        d.innerHTML = `<div class="result-card"><div class="result-card-title">📋 ${name}</div><div class="result-row"><span class="result-key">Результат</span><div style="text-align:right"><div class="result-val">Без патологии</div><div class="result-ref">В пределах нормы</div></div></div></div>`;
+        document.getElementById('messages').appendChild(d);
+        document.getElementById('messages').scrollTop = 99999;
+      });
+    }, (examKeys.length+labKeys.length)*250+300);
+  }
+  switchSidebarTab('results');
+}
+
 // ── INLINE ORDER WIDGET ──────────────────────────────
 let inlineOrderId = 0;
 
@@ -1064,25 +1173,21 @@ function showInlineOrder() {
   d.innerHTML = `
     <div class="inline-order">
       <div class="inline-order-title">💡 Хотите назначить обследования?</div>
-      <div class="inline-order-groups" id="iog-${id}">
-        <label class="inline-order-group">
-          <input type="checkbox" value="lab"> 🧪 Лабораторные анализы
-        </label>
-        <label class="inline-order-group">
-          <input type="checkbox" value="exam"> 🩺 Физикальный осмотр
-        </label>
-        <label class="inline-order-group">
-          <input type="checkbox" value="instrument"> 📈 Инструментальные
-        </label>
+      <div style="position:relative;">
+        <input class="inline-search-input" id="isearch-${id}" type="text"
+          placeholder="Введите название — ОАК, глюкоза, ЭКГ..."
+          oninput="inlineSearch('${id}', this.value)"
+          autocomplete="off">
       </div>
-      <div class="inline-order-items" id="ioi-${id}" style="display:none;"></div>
-      <div class="inline-order-btns">
-        <button class="inline-order-btn primary" id="iobtn-${id}" onclick="inlineOrderNext(${id})">Далее →</button>
+      <div class="inline-search-results" id="isr-${id}"></div>
+      <div class="inline-order-btns" style="margin-top:4px;">
+        <button class="inline-order-btn green" id="iobtn-${id}" onclick="inlineSearchSubmit('${id}')" disabled>Назначить →</button>
         <button class="inline-order-btn secondary" onclick="document.getElementById('inline-order-${id}').remove()">Пропустить</button>
       </div>
     </div>`;
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
+  setTimeout(() => document.getElementById(`isearch-${id}`)?.focus(), 100);
 }
 
 function inlineOrderNext(id) {
