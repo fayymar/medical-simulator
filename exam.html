@@ -793,11 +793,6 @@ async function sendMessage() {
       addMessage('patient', cleanReply);
     }
 
-    // Show inline order widget if student asked about tests
-    if (shouldShowInlineOrder(text) && (usedLabs.size + usedExams.size) < 3) {
-      setTimeout(() => showInlineOrder(), 600);
-    }
-
     // AI tags as fallback for edge cases
     const examMatches = [...reply.matchAll(/\[EXAM:([^\]]+)\]/g)];
     examMatches.forEach((m, i) => {
