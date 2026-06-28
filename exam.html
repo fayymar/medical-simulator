@@ -227,6 +227,40 @@
   .inline-order-btn.green { background: var(--green); color: #fff; }
   .inline-order-btn.green:hover { opacity: 0.9; }
 
+
+  /* SEARCH ORDER WIDGET */
+  .search-order-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+  @media (min-width: 700px) { .search-order-overlay { align-items: center; padding: 24px; } }
+  .search-order-modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -8px 40px rgba(0,0,0,0.15); }
+  @media (min-width: 700px) { .search-order-modal { border-radius: 20px; } }
+  .search-order-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .search-order-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+  .search-order-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text3); padding: 0; line-height: 1; }
+  .search-order-input-wrap { padding: 12px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; position: relative; }
+  .search-order-input { width: 100%; border: 1px solid var(--border2); border-radius: 10px; padding: 10px 36px 10px 14px; font-family: var(--font); font-size: 15px; color: var(--text); background: var(--surface2); outline: none; }
+  .search-order-input:focus { border-color: var(--accent); background: var(--surface); }
+  .search-order-icon { position: absolute; right: 32px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+  .search-results { flex: 1; overflow-y: auto; padding: 8px 12px; }
+  .search-result-item { display: flex; align-items: center; gap: 10px; padding: 10px 8px; border-radius: 8px; cursor: pointer; transition: background .12s; }
+  .search-result-item:hover { background: var(--surface2); }
+  .search-result-item.selected { background: var(--accent-light); }
+  .search-result-item.used { opacity: 0.4; pointer-events: none; }
+  .search-result-cb { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+  .search-result-name { font-size: 14px; color: var(--text); font-weight: 500; flex: 1; }
+  .search-result-cat { font-size: 11px; color: var(--text3); }
+  .search-result-used-badge { font-size: 10px; color: var(--green); font-weight: 600; }
+  .search-empty { text-align: center; padding: 32px 16px; color: var(--text3); font-size: 13px; }
+  .search-hint { text-align: center; padding: 24px 16px; color: var(--text3); font-size: 13px; line-height: 1.6; }
+  .search-selected-bar { padding: 12px 20px; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+  .search-selected-count { font-size: 13px; color: var(--text2); flex: 1; }
+  .search-submit-btn { padding: 10px 20px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .search-submit-btn:disabled { background: var(--text3); cursor: not-allowed; }
+  .search-submit-btn.green { background: var(--green); }
+
+  /* ORDER BUTTON next to input */
+  .order-trigger-btn { padding: 0 14px; height: 100%; background: var(--accent-light); border: 1px solid #b5d4f4; border-radius: 10px; font-family: var(--font); font-size: 13px; font-weight: 600; color: var(--accent); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+  .order-trigger-btn:hover { background: var(--accent); color: #fff; }
+
 </style>
 </head>
 <body>
@@ -847,6 +881,165 @@ function hideTyping() { document.getElementById('typing')?.remove(); }
 // ── SIDEBAR (DESKTOP) ────────────────────────────────
 
 
+
+// ── SEARCH ORDER MODAL ───────────────────────────────
+let searchSelected = new Map(); // key -> {name, category}
+let searchDebounce = null;
+
+function openSearchOrder() {
+  searchSelected.clear();
+  document.getElementById('search-overlay').style.display = 'flex';
+  document.getElementById('search-order-input').value = '';
+  document.getElementById('search-results').innerHTML = '<div class="search-hint">Начните вводить название — например:<br><b>ОАК</b>, <b>глюкоза</b>, <b>ЭКГ</b>, <b>кортизол</b>...</div>';
+  updateSearchBar();
+  setTimeout(() => document.getElementById('search-order-input').focus(), 100);
+}
+
+function closeSearchOrder(e) {
+  if (!e || e.target === document.getElementById('search-overlay')) {
+    document.getElementById('search-overlay').style.display = 'none';
+  }
+}
+
+function onSearchInput(val) {
+  clearTimeout(searchDebounce);
+  if (val.trim().length < 2) {
+    document.getElementById('search-results').innerHTML = '<div class="search-hint">Начните вводить название — например:<br><b>ОАК</b>, <b>глюкоза</b>, <b>ЭКГ</b>, <b>кортизол</b>...</div>';
+    return;
+  }
+  document.getElementById('search-results').innerHTML = '<div class="search-hint">Поиск...</div>';
+  searchDebounce = setTimeout(() => doSearch(val.trim()), 300);
+}
+
+async function doSearch(q) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/lab-search?q=${encodeURIComponent(q)}&limit=10`);
+    const items = await res.json();
+    renderSearchResults(items, q);
+  } catch(e) {
+    document.getElementById('search-results').innerHTML = '<div class="search-empty">Ошибка поиска</div>';
+  }
+}
+
+function renderSearchResults(items, q) {
+  const container = document.getElementById('search-results');
+  if (!items.length) {
+    container.innerHTML = '<div class="search-empty">Ничего не найдено</div>';
+    return;
+  }
+  const catIcons = { 'Лаборатория': '🧪', 'Инструментальные': '📈', 'Осмотр': '🩺' };
+  container.innerHTML = items.map(item => {
+    const isUsed = usedLabs.has(item.name) || usedExams.has(item.name);
+    const isSelected = searchSelected.has(item.id);
+    return `<label class="search-result-item ${isUsed ? 'used' : ''} ${isSelected ? 'selected' : ''}" onclick="toggleSearchItem('${item.id}', '${item.name.replace(/'/g,"\'")}', '${item.category}', this)">
+      <input type="checkbox" class="search-result-cb" ${isSelected ? 'checked' : ''} ${isUsed ? 'disabled' : ''} onclick="event.stopPropagation(); toggleSearchItem('${item.id}', '${item.name.replace(/'/g,"\'")}', '${item.category}', this.closest('.search-result-item'))">
+      <div style="flex:1;">
+        <div class="search-result-name">${item.name}</div>
+        <div class="search-result-cat">${catIcons[item.category] || ''} ${item.category}</div>
+      </div>
+      ${isUsed ? '<span class="search-result-used-badge">✓ Назначено</span>' : ''}
+    </label>`;
+  }).join('');
+}
+
+function toggleSearchItem(id, name, category, el) {
+  if (searchSelected.has(id)) {
+    searchSelected.delete(id);
+    el.classList.remove('selected');
+    el.querySelector('input[type=checkbox]').checked = false;
+  } else {
+    searchSelected.set(id, { name, category });
+    el.classList.add('selected');
+    el.querySelector('input[type=checkbox]').checked = true;
+  }
+  updateSearchBar();
+}
+
+function updateSearchBar() {
+  const count = searchSelected.size;
+  const countEl = document.getElementById('search-selected-count');
+  const btn = document.getElementById('search-submit-btn');
+  if (count === 0) {
+    countEl.textContent = 'Ничего не выбрано';
+    btn.disabled = true;
+    btn.className = 'search-submit-btn';
+  } else {
+    countEl.textContent = `Выбрано: ${count}`;
+    btn.disabled = false;
+    btn.className = 'search-submit-btn green';
+  }
+}
+
+async function submitSearchOrder() {
+  if (searchSelected.size === 0) return;
+
+  const items = [...searchSelected.values()];
+  closeSearchOrder();
+
+  // Map names to case keys
+  const labKeyMap = {
+    'Глюкоза крови': 'глюкоза', 'HbA1c': 'hba1c', 'Общий анализ крови': 'оак',
+    'Калий': 'электролиты', 'Натрий': 'электролиты', 'Магний': 'магний',
+    'Электролиты': 'электролиты', 'Газы артериальной крови': 'агк',
+    'Анионная разница': 'агк', 'Бикарбонат': 'агк',
+    'Мочевина': 'почки', 'Креатинин': 'почки', 'СКФ': 'почки',
+    'АЛТ': 'печень', 'АСТ': 'печень', 'Билирубин общий': 'печень',
+    'Общий анализ мочи': 'моча', 'Глюкоза мочи': 'моча', 'Кетоны мочи': 'моча',
+    'ЭКГ': 'экг', 'Рентген грудной клетки': 'рентген',
+  };
+  const examKeyMap = {
+    'Витальные показатели': 'витальные', 'Общий осмотр': 'общий',
+    'Сердечно-сосудистая система': 'кардио', 'Дыхательная система': 'дыхание',
+    'Абдоминальный осмотр': 'живот', 'Неврологический осмотр': 'неврология',
+    'Осмотр конечностей': 'конечности',
+  };
+
+  const orderedLabs = [];
+  const orderedExams = [];
+  const noResult = [];
+
+  items.forEach(item => {
+    if (item.category === 'Осмотр') {
+      const key = examKeyMap[item.name];
+      if (key && !usedExams.has(key)) {
+        usedExams.add(key); stats.exams++; orderedExams.push(key);
+      } else if (!key) {
+        noResult.push(item.name);
+      }
+    } else {
+      const key = labKeyMap[item.name];
+      if (key && !usedLabs.has(key)) {
+        usedLabs.add(key); stats.labs++; orderedLabs.push(key);
+      } else if (!key) {
+        noResult.push(item.name);
+      }
+    }
+  });
+
+  // Render available results
+  orderedExams.forEach((key, i) => setTimeout(() => renderExamResult(key), i * 250));
+  orderedLabs.forEach((key, i) => setTimeout(() => renderLabResult(key), (orderedExams.length + i) * 250));
+
+  // System message
+  const assigned = items.map(i => i.name);
+  addMessage('system', '✅ Назначено: ' + assigned.join(', '));
+
+  // Items not in case
+  if (noResult.length > 0) {
+    setTimeout(() => {
+      noResult.forEach(name => {
+        const d = document.createElement('div');
+        d.className = 'msg result';
+        d.innerHTML = `<div class="result-card"><div class="result-card-title">📋 ${name}</div><div class="result-row"><span class="result-key">Результат</span><div style="text-align:right"><div class="result-val">Без патологии</div><div class="result-ref">В пределах нормы</div></div></div></div>`;
+        document.getElementById('messages').appendChild(d);
+        document.getElementById('messages').scrollTop = 99999;
+      });
+    }, (orderedExams.length + orderedLabs.length) * 250 + 300);
+  }
+
+  switchSidebarTab('results');
+}
+
 // ── INLINE ORDER WIDGET ──────────────────────────────
 let inlineOrderId = 0;
 
@@ -1149,5 +1342,30 @@ inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.heigh
 // Auto start
 startExam();
 </script>
+
+<!-- SEARCH ORDER MODAL -->
+<div class="search-order-overlay" id="search-overlay" style="display:none;" onclick="closeSearchOrder(event)">
+  <div class="search-order-modal" onclick="event.stopPropagation()">
+    <div class="search-order-header">
+      <div class="search-order-title">🔍 Назначить обследование</div>
+      <button class="search-order-close" onclick="closeSearchOrder()">✕</button>
+    </div>
+    <div class="search-order-input-wrap">
+      <input class="search-order-input" id="search-order-input" type="text"
+        placeholder="Введите название анализа или исследования..."
+        oninput="onSearchInput(this.value)"
+        autocomplete="off">
+      <span class="search-order-icon">🔍</span>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="search-hint">Начните вводить название — например:<br><b>ОАК</b>, <b>глюкоза</b>, <b>ЭКГ</b>, <b>кортизол</b>...</div>
+    </div>
+    <div class="search-selected-bar">
+      <div class="search-selected-count" id="search-selected-count">Ничего не выбрано</div>
+      <button class="search-submit-btn" id="search-submit-btn" onclick="submitSearchOrder()" disabled>Назначить →</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
