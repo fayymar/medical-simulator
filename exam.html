@@ -776,15 +776,7 @@ async function sendMessage() {
   stats.questions++;
 
   // Frontend keyword parsing - immediate card rendering
-  const parsed = parseKeywords(text);
-  parsed.exams.forEach((key, i) => {
-    usedExams.add(key); stats.exams++;
-    setTimeout(() => renderExamResult(key), 300 + i * 200);
-  });
-  parsed.labs.forEach((key, i) => {
-    usedLabs.add(key); stats.labs++;
-    setTimeout(() => renderLabResult(key), 300 + (parsed.exams.length + i) * 200);
-  });
+  // Text parser disabled - only search widget assigns tests
 
   // Handle "результаты?" request
   if (isResultRequest(text)) {
